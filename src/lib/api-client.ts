@@ -115,6 +115,17 @@ export interface User {
   created_at: string;
 }
 
+export interface DocFile {
+  name: string;  // Filename with extension
+  path: string;  // Web path for routing (e.g., "/docs/api")
+  title: string; // Display title
+}
+
+export interface DocCategory {
+  category: string; // Category name (e.g., "API", "Services")
+  files: DocFile[]; // Files in this category
+}
+
 // ============================================================================
 // API CLIENT
 // ============================================================================
@@ -139,6 +150,22 @@ class JarvisAPI {
     } else {
       localStorage.removeItem('jarvis_token');
     }
+  }
+
+  /**
+   * Get current user's ID from localStorage (set during login)
+   * @returns user_id as string, or empty string if not found
+   */
+  private getCurrentUserId(): string {
+    return localStorage.getItem('jarvis_user_id') || '';
+  }
+
+  /**
+   * Get current user's role from localStorage
+   * @returns role as string (root, admin, public), or empty string if not found
+   */
+  private getCurrentRole(): string {
+    return localStorage.getItem('jarvis_role') || '';
   }
 
   private async request<T>(
@@ -315,21 +342,23 @@ class JarvisAPI {
   // HEARTBEAT (4 endpoints)
   // ============================================================================
 
-  async getHeartbeatConfig(userId: string): Promise<HeartbeatConfig> {
-    return this.request<HeartbeatConfig>(`/api/heartbeat/config?user_id=${userId}`);
+  async getHeartbeatConfig(userId?: string): Promise<HeartbeatConfig> {
+    const uid = userId || this.getCurrentUserId();
+    return this.request<HeartbeatConfig>(`/api/heartbeat/config?user_id=${uid}`);
   }
 
-  async updateHeartbeatConfig(userId: string, config: HeartbeatConfig): Promise<void> {
-    await this.request<void>('/api/heartbeat/config', {
+  async updateHeartbeatConfig(config: HeartbeatConfig, userId?: string): Promise<void> {
+    const uid = userId || this.getCurrentUserId();
+    await this.request<void>(`/api/heartbeat/config?user_id=${uid}`, {
       method: 'PUT',
-      body: JSON.stringify({ user_id: userId, ...config }),
+      body: JSON.stringify(config),
     });
   }
 
-  async runHeartbeat(userId: string): Promise<HeartbeatResult> {
-    return this.request<HeartbeatResult>('/api/heartbeat/run', {
+  async runHeartbeat(userId?: string): Promise<HeartbeatResult> {
+    const uid = userId || this.getCurrentUserId();
+    return this.request<HeartbeatResult>(`/api/heartbeat/run?user_id=${uid}`, {
       method: 'POST',
-      body: JSON.stringify({ user_id: userId }),
     });
   }
 
@@ -348,8 +377,9 @@ class JarvisAPI {
     });
   }
 
-  async listWorkflows(userId: string): Promise<Workflow[]> {
-    return this.request<Workflow[]>(`/api/workflows?user_id=${userId}`);
+  async listWorkflows(userId?: string): Promise<Workflow[]> {
+    const uid = userId || this.getCurrentUserId();
+    return this.request<Workflow[]>(`/api/workflows?user_id=${uid}`);
   }
 
   async getWorkflow(id: string): Promise<Workflow> {
@@ -394,14 +424,15 @@ class JarvisAPI {
   // REFLECTION (2 endpoints)
   // ============================================================================
 
-  async getLearnings(userId: string, limit = 20): Promise<any[]> {
-    return this.request<any[]>(`/api/reflection/learnings?user_id=${userId}&limit=${limit}`);
+  async getLearnings(limit = 20, userId?: string): Promise<any[]> {
+    const uid = userId || this.getCurrentUserId();
+    return this.request<any[]>(`/api/reflection/learnings?user_id=${uid}&limit=${limit}`);
   }
 
-  async runReflection(userId: string): Promise<any> {
-    return this.request<any>('/api/reflection/run', {
+  async runReflection(userId?: string): Promise<any> {
+    const uid = userId || this.getCurrentUserId();
+    return this.request<any>(`/api/reflection/run?user_id=${uid}`, {
       method: 'POST',
-      body: JSON.stringify({ user_id: userId }),
     });
   }
 
@@ -416,8 +447,9 @@ class JarvisAPI {
     });
   }
 
-  async listRecurring(userId: string): Promise<RecurringTask[]> {
-    return this.request<RecurringTask[]>(`/api/recurring?user_id=${userId}`);
+  async listRecurring(userId?: string): Promise<RecurringTask[]> {
+    const uid = userId || this.getCurrentUserId();
+    return this.request<RecurringTask[]>(`/api/recurring?user_id=${uid}`);
   }
 
   async getRecurring(taskId: string): Promise<RecurringTask> {
@@ -547,6 +579,14 @@ class JarvisAPI {
     await this.request<void>(`/api/users/${id}`, {
       method: 'DELETE',
     });
+  }
+
+  // ============================================================================
+  // DOCUMENTATION (1 endpoint)
+  // ============================================================================
+
+  async listDocs(): Promise<DocCategory[]> {
+    return this.request<DocCategory[]>('/api/docs/list');
   }
 }
 
