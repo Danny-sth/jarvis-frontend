@@ -160,14 +160,6 @@ class JarvisAPI {
     return localStorage.getItem('jarvis_user_id') || '';
   }
 
-  /**
-   * Get current user's role from localStorage
-   * @returns role as string (root, admin, public), or empty string if not found
-   */
-  private getCurrentRole(): string {
-    return localStorage.getItem('jarvis_role') || '';
-  }
-
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}

@@ -38,7 +38,7 @@ export default function HeartbeatConfig() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: IHeartbeatConfig) => api.updateHeartbeatConfig(userId!, data),
+    mutationFn: (data: IHeartbeatConfig) => api.updateHeartbeatConfig(data, userId || undefined),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['heartbeat-config', userId] });
       setMessage('Config saved successfully');
