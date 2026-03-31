@@ -6,7 +6,7 @@ export function AIEyes() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Show eyes after a short delay for dramatic effect
+    // Show eyes after a short delay
     const timer = setTimeout(() => setIsVisible(true), 500);
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -21,18 +21,14 @@ export function AIEyes() {
     };
   }, []);
 
-  const calculatePupilPosition = (eyeX: number, eyeY: number) => {
-    if (!containerRef.current) return { x: 0, y: 0 };
+  const calculateEyeRotation = (eyeX: number, eyeY: number) => {
+    if (!containerRef.current) return 0;
 
     const dx = mousePos.x - eyeX;
     const dy = mousePos.y - eyeY;
     const angle = Math.atan2(dy, dx);
-    const distance = Math.min(Math.sqrt(dx * dx + dy * dy) / 20, 12); // Max movement 12px
 
-    return {
-      x: Math.cos(angle) * distance,
-      y: Math.sin(angle) * distance,
-    };
+    return (angle * 180) / Math.PI;
   };
 
   return (
@@ -42,115 +38,79 @@ export function AIEyes() {
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}
     >
-      <div className="relative flex gap-12">
+      <div className="relative flex gap-16">
         {/* Left Eye */}
-        <div className="relative w-20 h-20">
-          {/* Eye outer glow */}
-          <div className="absolute inset-0 bg-blue-400/30 rounded-full blur-2xl animate-pulse" />
+        <div className="relative w-28 h-16 flex items-center justify-center">
+          {/* Outer glow */}
+          <div className="absolute inset-0 bg-cyan-400/40 blur-2xl rounded-full animate-pulse" />
 
-          {/* Eye socket */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/40 to-cyan-400/30 rounded-full border-2 border-blue-400/50 shadow-lg shadow-blue-400/50">
-            {/* Inner eye */}
-            <div className="absolute inset-4 bg-gradient-to-br from-black to-jarvis-bg-dark rounded-full border border-cyan-400/40">
-              {/* Iris */}
-              <div className="absolute inset-3 bg-gradient-to-br from-cyan-300 via-blue-400 to-blue-500 rounded-full opacity-70 animate-glow-pulse">
-                {/* Iris details - rings */}
-                <div className="absolute inset-2 border border-cyan-300/40 rounded-full" />
-                <div className="absolute inset-4 border border-blue-300/50 rounded-full" />
-              </div>
+          {/* Eye shape - oval */}
+          <div
+            className="relative w-24 h-12 bg-gradient-to-r from-cyan-400 via-cyan-300 to-cyan-400 rounded-full shadow-lg shadow-cyan-400 opacity-90 transition-transform duration-200 ease-out"
+            style={{
+              transform: `rotate(${calculateEyeRotation(
+                containerRef.current
+                  ? containerRef.current.getBoundingClientRect().left + 56
+                  : 0,
+                containerRef.current
+                  ? containerRef.current.getBoundingClientRect().top + 32
+                  : 0
+              ) * 0.1}deg)`,
+              filter: 'drop-shadow(0 0 10px rgba(34, 211, 238, 0.8)) drop-shadow(0 0 20px rgba(6, 182, 212, 0.6))',
+            }}
+          >
+            {/* Inner glow */}
+            <div className="absolute inset-1 bg-gradient-to-r from-cyan-300 via-white to-cyan-300 rounded-full opacity-60" />
 
-              {/* Pupil (moves with mouse) */}
-              <div
-                className="absolute top-1/2 left-1/2 w-6 h-6 -translate-x-1/2 -translate-y-1/2 transition-transform duration-150 ease-out"
-                style={{
-                  transform: `translate(calc(-50% + ${calculatePupilPosition(
-                    containerRef.current
-                      ? containerRef.current.getBoundingClientRect().left + 40 // center of left eye (half of 80px)
-                      : 0,
-                    containerRef.current
-                      ? containerRef.current.getBoundingClientRect().top + 40 // center of left eye
-                      : 0
-                  ).x}px), calc(-50% + ${calculatePupilPosition(
-                    containerRef.current
-                      ? containerRef.current.getBoundingClientRect().left + 40
-                      : 0,
-                    containerRef.current
-                      ? containerRef.current.getBoundingClientRect().top + 40
-                      : 0
-                  ).y}px))`,
-                }}
-              >
-                <div className="w-full h-full bg-black rounded-full border border-blue-400 shadow-lg shadow-cyan-400">
-                  {/* Pupil highlight */}
-                  <div className="absolute top-1 right-1 w-2 h-2 bg-cyan-300 rounded-full opacity-90" />
-                </div>
-              </div>
-            </div>
+            {/* Highlight */}
+            <div className="absolute top-2 left-1/4 w-8 h-3 bg-white rounded-full opacity-40 blur-sm" />
           </div>
 
-          {/* Scanning lines effect */}
+          {/* Scanning line effect */}
           <div className="absolute inset-0 overflow-hidden rounded-full opacity-30">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/50 to-transparent h-5 animate-scan" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-200/60 to-transparent h-4 animate-scan" />
           </div>
         </div>
 
         {/* Right Eye */}
-        <div className="relative w-20 h-20">
-          {/* Eye outer glow */}
-          <div className="absolute inset-0 bg-blue-400/30 rounded-full blur-2xl animate-pulse" />
+        <div className="relative w-28 h-16 flex items-center justify-center">
+          {/* Outer glow */}
+          <div className="absolute inset-0 bg-cyan-400/40 blur-2xl rounded-full animate-pulse" />
 
-          {/* Eye socket */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/40 to-cyan-400/30 rounded-full border-2 border-blue-400/50 shadow-lg shadow-blue-400/50">
-            {/* Inner eye */}
-            <div className="absolute inset-4 bg-gradient-to-br from-black to-jarvis-bg-dark rounded-full border border-cyan-400/40">
-              {/* Iris */}
-              <div className="absolute inset-3 bg-gradient-to-br from-cyan-300 via-blue-400 to-blue-500 rounded-full opacity-70 animate-glow-pulse">
-                {/* Iris details - rings */}
-                <div className="absolute inset-2 border border-cyan-300/40 rounded-full" />
-                <div className="absolute inset-4 border border-blue-300/50 rounded-full" />
-              </div>
+          {/* Eye shape - oval */}
+          <div
+            className="relative w-24 h-12 bg-gradient-to-r from-cyan-400 via-cyan-300 to-cyan-400 rounded-full shadow-lg shadow-cyan-400 opacity-90 transition-transform duration-200 ease-out"
+            style={{
+              transform: `rotate(${calculateEyeRotation(
+                containerRef.current
+                  ? containerRef.current.getBoundingClientRect().left + 56 + 112 + 64 // 56 (half left) + 112 (left width) + 64 (gap) + 56 (half right)
+                  : 0,
+                containerRef.current
+                  ? containerRef.current.getBoundingClientRect().top + 32
+                  : 0
+              ) * 0.1}deg)`,
+              filter: 'drop-shadow(0 0 10px rgba(34, 211, 238, 0.8)) drop-shadow(0 0 20px rgba(6, 182, 212, 0.6))',
+            }}
+          >
+            {/* Inner glow */}
+            <div className="absolute inset-1 bg-gradient-to-r from-cyan-300 via-white to-cyan-300 rounded-full opacity-60" />
 
-              {/* Pupil (moves with mouse) */}
-              <div
-                className="absolute top-1/2 left-1/2 w-6 h-6 -translate-x-1/2 -translate-y-1/2 transition-transform duration-150 ease-out"
-                style={{
-                  transform: `translate(calc(-50% + ${calculatePupilPosition(
-                    containerRef.current
-                      ? containerRef.current.getBoundingClientRect().left + 40 + 80 + 48 + 40 // 40 (half left) + 80 (left width) + 48 (gap-12) + 40 (half right) = 208
-                      : 0,
-                    containerRef.current
-                      ? containerRef.current.getBoundingClientRect().top + 40 // center of right eye
-                      : 0
-                  ).x}px), calc(-50% + ${calculatePupilPosition(
-                    containerRef.current
-                      ? containerRef.current.getBoundingClientRect().left + 40 + 80 + 48 + 40
-                      : 0,
-                    containerRef.current
-                      ? containerRef.current.getBoundingClientRect().top + 40
-                      : 0
-                  ).y}px))`,
-                }}
-              >
-                <div className="w-full h-full bg-black rounded-full border border-blue-400 shadow-lg shadow-cyan-400">
-                  {/* Pupil highlight */}
-                  <div className="absolute top-1 right-1 w-2 h-2 bg-cyan-300 rounded-full opacity-90" />
-                </div>
-              </div>
-            </div>
+            {/* Highlight */}
+            <div className="absolute top-2 left-1/4 w-8 h-3 bg-white rounded-full opacity-40 blur-sm" />
           </div>
 
-          {/* Scanning lines effect */}
+          {/* Scanning line effect */}
           <div className="absolute inset-0 overflow-hidden rounded-full opacity-30">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/50 to-transparent h-5 animate-scan" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-200/60 to-transparent h-4 animate-scan" />
           </div>
         </div>
       </div>
 
       {/* Connecting light beam between eyes */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-50" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-0.5 bg-gradient-to-r from-transparent via-cyan-300/60 to-transparent" />
 
-      {/* Subtle outer glow around entire face area */}
-      <div className="absolute -inset-8 bg-gradient-radial from-blue-400/15 via-transparent to-transparent rounded-full blur-2xl" />
+      {/* Subtle outer glow */}
+      <div className="absolute -inset-12 bg-gradient-radial from-cyan-400/20 via-transparent to-transparent rounded-full blur-3xl" />
     </div>
   );
 }
