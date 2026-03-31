@@ -207,7 +207,7 @@ class JarvisAPI {
   private baseUrl: string;
   private token: string | null = null;
 
-  constructor(baseUrl = 'http://90.156.230.49:8082') {
+  constructor(baseUrl = '/api') {
     this.baseUrl = baseUrl;
     this.loadToken();
   }
