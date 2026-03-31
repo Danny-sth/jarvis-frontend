@@ -282,7 +282,7 @@ class JarvisAPI {
   // ============================================================================
 
   async login(username: string, password: string): Promise<{ token: string; user_id: number; role: string }> {
-    const response = await this.request<{ token: string; user_id: number; role: string }>('/api/auth/login', {
+    const response = await this.request<{ token: string; user_id: number; role: string }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ username, password }),
     });
@@ -299,7 +299,7 @@ class JarvisAPI {
   // ============================================================================
 
   async sendChat(message: string, userId: string): Promise<ChatResponse> {
-    return this.request<ChatResponse>('/api/chat', {
+    return this.request<ChatResponse>('/chat', {
       method: 'POST',
       body: JSON.stringify({ message, user_id: userId }),
     });
@@ -318,7 +318,7 @@ class JarvisAPI {
   }
 
   async clearChatHistory(userId: string): Promise<void> {
-    await this.request<void>(`/api/chat/clear?user_id=${userId}`, {
+    await this.request<void>(`/chat/clear?user_id=${userId}`, {
       method: 'POST',
     });
   }
@@ -328,20 +328,20 @@ class JarvisAPI {
   // ============================================================================
 
   async getQueueStats(): Promise<QueueStats> {
-    return this.request<QueueStats>('/api/queue/stats/overview');
+    return this.request<QueueStats>('/queue/stats/overview');
   }
 
   async getQueueTasks(status?: string): Promise<QueueTask[]> {
-    const url = status ? `/api/queue?status=${status}` : '/api/queue';
+    const url = status ? `/queue?status=${status}` : '/queue';
     return this.request<QueueTask[]>(url);
   }
 
   async getTask(taskId: string): Promise<QueueTask> {
-    return this.request<QueueTask>(`/api/queue/${taskId}`);
+    return this.request<QueueTask>(`/queue/${taskId}`);
   }
 
   async cancelTask(taskId: string): Promise<void> {
-    await this.request<void>(`/api/queue/${taskId}`, {
+    await this.request<void>(`/queue/${taskId}`, {
       method: 'DELETE',
     });
   }
@@ -355,7 +355,7 @@ class JarvisAPI {
     userId: string,
     limit = 10
   ): Promise<MemoryResult[]> {
-    return this.request<MemoryResult[]>('/api/cortex/search', {
+    return this.request<MemoryResult[]>('/cortex/search', {
       method: 'POST',
       body: JSON.stringify({ query, user_id: userId, limit }),
     });
@@ -366,7 +366,7 @@ class JarvisAPI {
     userId: string,
     importance = 5
   ): Promise<void> {
-    await this.request<void>('/api/cortex/store', {
+    await this.request<void>('/cortex/store', {
       method: 'POST',
       body: JSON.stringify({ content, user_id: userId, importance }),
     });
@@ -377,30 +377,30 @@ class JarvisAPI {
   // ============================================================================
 
   async listObsidianFiles(path = ''): Promise<string[]> {
-    return this.request<string[]>(`/api/obsidian/list?path=${encodeURIComponent(path)}`);
+    return this.request<string[]>(`/obsidian/list?path=${encodeURIComponent(path)}`);
   }
 
   async readObsidianFile(path: string): Promise<{ content: string }> {
-    return this.request<{ content: string }>(`/api/obsidian/read?path=${encodeURIComponent(path)}`);
+    return this.request<{ content: string }>(`/obsidian/read?path=${encodeURIComponent(path)}`);
   }
 
   async writeObsidianFile(path: string, content: string): Promise<void> {
-    await this.request<void>('/api/obsidian/write', {
+    await this.request<void>('/obsidian/write', {
       method: 'POST',
       body: JSON.stringify({ path, content }),
     });
   }
 
   async searchObsidian(query: string): Promise<any[]> {
-    return this.request<any[]>(`/api/obsidian/search?query=${encodeURIComponent(query)}`);
+    return this.request<any[]>(`/obsidian/search?query=${encodeURIComponent(query)}`);
   }
 
   async getObsidianLinks(path: string): Promise<string[]> {
-    return this.request<string[]>(`/api/obsidian/links?path=${encodeURIComponent(path)}`);
+    return this.request<string[]>(`/obsidian/links?path=${encodeURIComponent(path)}`);
   }
 
   async getObsidianBacklinks(path: string): Promise<string[]> {
-    return this.request<string[]>(`/api/obsidian/backlinks?path=${encodeURIComponent(path)}`);
+    return this.request<string[]>(`/obsidian/backlinks?path=${encodeURIComponent(path)}`);
   }
 
   // ============================================================================
@@ -409,12 +409,12 @@ class JarvisAPI {
 
   async getHeartbeatConfig(userId?: string): Promise<HeartbeatConfig> {
     const uid = userId || this.getCurrentUserId();
-    return this.request<HeartbeatConfig>(`/api/heartbeat/config?user_id=${uid}`);
+    return this.request<HeartbeatConfig>(`/heartbeat/config?user_id=${uid}`);
   }
 
   async updateHeartbeatConfig(config: HeartbeatConfig, userId?: string): Promise<void> {
     const uid = userId || this.getCurrentUserId();
-    await this.request<void>(`/api/heartbeat/config?user_id=${uid}`, {
+    await this.request<void>(`/heartbeat/config?user_id=${uid}`, {
       method: 'PUT',
       body: JSON.stringify(config),
     });
@@ -422,13 +422,13 @@ class JarvisAPI {
 
   async runHeartbeat(userId?: string): Promise<HeartbeatResult> {
     const uid = userId || this.getCurrentUserId();
-    return this.request<HeartbeatResult>(`/api/heartbeat/run?user_id=${uid}`, {
+    return this.request<HeartbeatResult>(`/heartbeat/run?user_id=${uid}`, {
       method: 'POST',
     });
   }
 
   async getAvailableChecks(): Promise<string[]> {
-    return this.request<string[]>('/api/heartbeat/checks');
+    return this.request<string[]>('/heartbeat/checks');
   }
 
   // ============================================================================
@@ -436,7 +436,7 @@ class JarvisAPI {
   // ============================================================================
 
   async createWorkflow(workflow: Omit<Workflow, 'id' | 'created_at'>): Promise<Workflow> {
-    return this.request<Workflow>('/api/workflows', {
+    return this.request<Workflow>('/workflows', {
       method: 'POST',
       body: JSON.stringify(workflow),
     });
@@ -444,43 +444,43 @@ class JarvisAPI {
 
   async listWorkflows(userId?: string): Promise<Workflow[]> {
     const uid = userId || this.getCurrentUserId();
-    return this.request<Workflow[]>(`/api/workflows?user_id=${uid}`);
+    return this.request<Workflow[]>(`/workflows?user_id=${uid}`);
   }
 
   async getWorkflow(id: string): Promise<Workflow> {
-    return this.request<Workflow>(`/api/workflows/${id}`);
+    return this.request<Workflow>(`/workflows/${id}`);
   }
 
   async updateWorkflow(id: string, workflow: Partial<Workflow>): Promise<Workflow> {
-    return this.request<Workflow>(`/api/workflows/${id}`, {
+    return this.request<Workflow>(`/workflows/${id}`, {
       method: 'PUT',
       body: JSON.stringify(workflow),
     });
   }
 
   async deleteWorkflow(id: string): Promise<void> {
-    await this.request<void>(`/api/workflows/${id}`, {
+    await this.request<void>(`/workflows/${id}`, {
       method: 'DELETE',
     });
   }
 
   async runWorkflow(id: string, variables?: Record<string, any>): Promise<WorkflowRun> {
-    return this.request<WorkflowRun>(`/api/workflows/${id}/run`, {
+    return this.request<WorkflowRun>(`/workflows/${id}/run`, {
       method: 'POST',
       body: JSON.stringify({ variables }),
     });
   }
 
   async getWorkflowRuns(workflowId: string): Promise<WorkflowRun[]> {
-    return this.request<WorkflowRun[]>(`/api/workflows/${workflowId}/runs`);
+    return this.request<WorkflowRun[]>(`/workflows/${workflowId}/runs`);
   }
 
   async getWorkflowRun(runId: string): Promise<WorkflowRun> {
-    return this.request<WorkflowRun>(`/api/workflows/runs/${runId}`);
+    return this.request<WorkflowRun>(`/workflows/runs/${runId}`);
   }
 
   async cancelWorkflowRun(runId: string): Promise<void> {
-    await this.request<void>(`/api/workflows/runs/${runId}/cancel`, {
+    await this.request<void>(`/workflows/runs/${runId}/cancel`, {
       method: 'POST',
     });
   }
@@ -491,12 +491,12 @@ class JarvisAPI {
 
   async getLearnings(limit = 20, userId?: string): Promise<any[]> {
     const uid = userId || this.getCurrentUserId();
-    return this.request<any[]>(`/api/reflection/learnings?user_id=${uid}&limit=${limit}`);
+    return this.request<any[]>(`/reflection/learnings?user_id=${uid}&limit=${limit}`);
   }
 
   async runReflection(userId?: string): Promise<any> {
     const uid = userId || this.getCurrentUserId();
-    return this.request<any>(`/api/reflection/run?user_id=${uid}`, {
+    return this.request<any>(`/reflection/run?user_id=${uid}`, {
       method: 'POST',
     });
   }
@@ -506,7 +506,7 @@ class JarvisAPI {
   // ============================================================================
 
   async createRecurring(task: Omit<RecurringTask, 'id' | 'created_at'>): Promise<RecurringTask> {
-    return this.request<RecurringTask>('/api/recurring', {
+    return this.request<RecurringTask>('/recurring', {
       method: 'POST',
       body: JSON.stringify(task),
     });
@@ -514,28 +514,28 @@ class JarvisAPI {
 
   async listRecurring(userId?: string): Promise<RecurringTask[]> {
     const uid = userId || this.getCurrentUserId();
-    return this.request<RecurringTask[]>(`/api/recurring?user_id=${uid}`);
+    return this.request<RecurringTask[]>(`/recurring?user_id=${uid}`);
   }
 
   async getRecurring(taskId: string): Promise<RecurringTask> {
-    return this.request<RecurringTask>(`/api/recurring/${taskId}`);
+    return this.request<RecurringTask>(`/recurring/${taskId}`);
   }
 
   async updateRecurring(taskId: string, task: Partial<RecurringTask>): Promise<RecurringTask> {
-    return this.request<RecurringTask>(`/api/recurring/${taskId}`, {
+    return this.request<RecurringTask>(`/recurring/${taskId}`, {
       method: 'PUT',
       body: JSON.stringify(task),
     });
   }
 
   async deleteRecurring(taskId: string): Promise<void> {
-    await this.request<void>(`/api/recurring/${taskId}`, {
+    await this.request<void>(`/recurring/${taskId}`, {
       method: 'DELETE',
     });
   }
 
   async previewCron(cron: string, timezone: string, count = 5): Promise<string[]> {
-    return this.request<string[]>('/api/recurring/preview', {
+    return this.request<string[]>('/recurring/preview', {
       method: 'POST',
       body: JSON.stringify({ cron_expression: cron, timezone, count }),
     });
@@ -546,26 +546,26 @@ class JarvisAPI {
   // ============================================================================
 
   async spawnSubtask(parentId: string, task: any): Promise<QueueTask> {
-    return this.request<QueueTask>('/api/subtasks/spawn', {
+    return this.request<QueueTask>('/subtasks/spawn', {
       method: 'POST',
       body: JSON.stringify({ parent_id: parentId, ...task }),
     });
   }
 
   async getSubtasks(parentId: string): Promise<QueueTask[]> {
-    return this.request<QueueTask[]>(`/api/subtasks/${parentId}`);
+    return this.request<QueueTask[]>(`/subtasks/${parentId}`);
   }
 
   async aggregateSubtaskResults(parentId: string): Promise<any> {
-    return this.request<any>(`/api/subtasks/${parentId}/aggregate`);
+    return this.request<any>(`/subtasks/${parentId}/aggregate`);
   }
 
   async waitForSubtasks(parentId: string, timeout = 300): Promise<any> {
-    return this.request<any>(`/api/subtasks/${parentId}/wait?timeout=${timeout}`);
+    return this.request<any>(`/subtasks/${parentId}/wait?timeout=${timeout}`);
   }
 
   async cancelAllSubtasks(parentId: string): Promise<void> {
-    await this.request<void>(`/api/subtasks/${parentId}/cancel`, {
+    await this.request<void>(`/subtasks/${parentId}/cancel`, {
       method: 'POST',
     });
   }
@@ -592,11 +592,11 @@ class JarvisAPI {
   // ============================================================================
 
   async getVersion(): Promise<{ version: string }> {
-    return this.request<{ version: string }>('/api/system/version');
+    return this.request<{ version: string }>('/system/version');
   }
 
   async getSystemInfo(): Promise<SystemInfo> {
-    return this.request<SystemInfo>('/api/system/info');
+    return this.request<SystemInfo>('/system/info');
   }
 
   // ============================================================================
@@ -608,7 +608,7 @@ class JarvisAPI {
     if (search) params.set('search', search);
     if (role) params.set('role', role);
     const queryString = params.toString();
-    return this.request<User[]>(`/api/users${queryString ? `?${queryString}` : ''}`);
+    return this.request<User[]>(`/users${queryString ? `?${queryString}` : ''}`);
   }
 
   async createUser(user: {
@@ -618,7 +618,7 @@ class JarvisAPI {
     telegram_id?: number | null;
     is_active: boolean;
   }): Promise<User> {
-    return this.request<User>('/api/users', {
+    return this.request<User>('/users', {
       method: 'POST',
       body: JSON.stringify(user),
     });
@@ -634,14 +634,14 @@ class JarvisAPI {
       is_active?: boolean;
     }
   ): Promise<User> {
-    return this.request<User>(`/api/users/${id}`, {
+    return this.request<User>(`/users/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
   }
 
   async deleteUser(id: number): Promise<void> {
-    await this.request<void>(`/api/users/${id}`, {
+    await this.request<void>(`/users/${id}`, {
       method: 'DELETE',
     });
   }
@@ -651,7 +651,7 @@ class JarvisAPI {
   // ============================================================================
 
   async listDocs(): Promise<DocCategory[]> {
-    return this.request<DocCategory[]>('/api/docs/list');
+    return this.request<DocCategory[]>('/docs/list');
   }
 
   // ============================================================================
@@ -659,7 +659,7 @@ class JarvisAPI {
   // ============================================================================
 
   async getLiveMetrics(): Promise<LiveMetrics> {
-    return this.request<LiveMetrics>('/api/monitoring/metrics/live');
+    return this.request<LiveMetrics>('/monitoring/metrics/live');
   }
 
   async getMonitoringEvents(params?: {
@@ -681,7 +681,7 @@ class JarvisAPI {
     if (params?.offset) query.set('offset', params.offset.toString());
 
     const queryString = query.toString();
-    return this.request(`/api/monitoring/events${queryString ? `?${queryString}` : ''}`);
+    return this.request(`/monitoring/events${queryString ? `?${queryString}` : ''}`);
   }
 
   async getLLMUsage(params?: {
@@ -693,12 +693,12 @@ class JarvisAPI {
     if (params?.caller) query.set('caller', params.caller);
 
     const queryString = query.toString();
-    return this.request(`/api/monitoring/llm/usage${queryString ? `?${queryString}` : ''}`);
+    return this.request(`/monitoring/llm/usage${queryString ? `?${queryString}` : ''}`);
   }
 
   async getStatsSummary(period?: string): Promise<StatsSummary> {
     const query = period ? `?period=${period}` : '';
-    return this.request(`/api/monitoring/stats/summary${query}`);
+    return this.request(`/monitoring/stats/summary${query}`);
   }
 }
 

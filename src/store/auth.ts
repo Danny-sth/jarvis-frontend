@@ -3,6 +3,7 @@ import { api } from '../lib/api-client';
 
 interface AuthState {
   isAuthenticated: boolean;
+  isLoading: boolean;
   userId: string | null;
   username: string | null;
   role: string | null;
@@ -13,6 +14,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
+  isLoading: true,
   userId: null,
   username: null,
   role: null,
@@ -72,6 +74,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       api.setToken(token);
       set({
         isAuthenticated: true,
+        isLoading: false,
         userId,
         username,
         role,
@@ -79,6 +82,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     } else {
       set({
         isAuthenticated: false,
+        isLoading: false,
         userId: null,
         username: null,
         role: null,
