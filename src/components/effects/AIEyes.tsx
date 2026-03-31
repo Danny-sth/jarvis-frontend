@@ -38,13 +38,13 @@ export function AIEyes() {
   return (
     <div
       ref={containerRef}
-      className={`fixed top-6 right-8 z-[35] pointer-events-none transition-opacity duration-1000 ${
+      className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-opacity duration-1000 ${
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}
     >
-      <div className="relative flex gap-16">
+      <div className="relative flex gap-12">
         {/* Left Eye */}
-        <div className="relative w-32 h-32">
+        <div className="relative w-20 h-20">
           {/* Eye outer glow */}
           <div className="absolute inset-0 bg-jarvis-red/20 rounded-full blur-2xl animate-pulse" />
 
@@ -61,28 +61,28 @@ export function AIEyes() {
 
               {/* Pupil (moves with mouse) */}
               <div
-                className="absolute top-1/2 left-1/2 w-10 h-10 -translate-x-1/2 -translate-y-1/2 transition-transform duration-150 ease-out"
+                className="absolute top-1/2 left-1/2 w-6 h-6 -translate-x-1/2 -translate-y-1/2 transition-transform duration-150 ease-out"
                 style={{
                   transform: `translate(calc(-50% + ${calculatePupilPosition(
                     containerRef.current
-                      ? containerRef.current.getBoundingClientRect().left + 64 // center of left eye
+                      ? containerRef.current.getBoundingClientRect().left + 40 // center of left eye (half of 80px)
                       : 0,
                     containerRef.current
-                      ? containerRef.current.getBoundingClientRect().top + 64 // center of left eye
+                      ? containerRef.current.getBoundingClientRect().top + 40 // center of left eye
                       : 0
                   ).x}px), calc(-50% + ${calculatePupilPosition(
                     containerRef.current
-                      ? containerRef.current.getBoundingClientRect().left + 64
+                      ? containerRef.current.getBoundingClientRect().left + 40
                       : 0,
                     containerRef.current
-                      ? containerRef.current.getBoundingClientRect().top + 64
+                      ? containerRef.current.getBoundingClientRect().top + 40
                       : 0
                   ).y}px))`,
                 }}
               >
-                <div className="w-full h-full bg-black rounded-full border-2 border-jarvis-red shadow-lg shadow-jarvis-red">
+                <div className="w-full h-full bg-black rounded-full border border-jarvis-red shadow-lg shadow-jarvis-red">
                   {/* Pupil highlight */}
-                  <div className="absolute top-2 right-2 w-3 h-3 bg-jarvis-orange rounded-full opacity-80" />
+                  <div className="absolute top-1 right-1 w-2 h-2 bg-jarvis-orange rounded-full opacity-80" />
                 </div>
               </div>
             </div>
@@ -90,12 +90,12 @@ export function AIEyes() {
 
           {/* Scanning lines effect */}
           <div className="absolute inset-0 overflow-hidden rounded-full opacity-30">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-jarvis-orange/40 to-transparent h-8 animate-scan" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-jarvis-orange/40 to-transparent h-5 animate-scan" />
           </div>
         </div>
 
         {/* Right Eye */}
-        <div className="relative w-32 h-32">
+        <div className="relative w-20 h-20">
           {/* Eye outer glow */}
           <div className="absolute inset-0 bg-jarvis-red/20 rounded-full blur-2xl animate-pulse" />
 
@@ -112,28 +112,28 @@ export function AIEyes() {
 
               {/* Pupil (moves with mouse) */}
               <div
-                className="absolute top-1/2 left-1/2 w-10 h-10 -translate-x-1/2 -translate-y-1/2 transition-transform duration-150 ease-out"
+                className="absolute top-1/2 left-1/2 w-6 h-6 -translate-x-1/2 -translate-y-1/2 transition-transform duration-150 ease-out"
                 style={{
                   transform: `translate(calc(-50% + ${calculatePupilPosition(
                     containerRef.current
-                      ? containerRef.current.getBoundingClientRect().left + 64 + 128 + 64 // 64 (half left eye) + 128 (left eye width) + 64 (gap) + 64 (half right eye) = 256
+                      ? containerRef.current.getBoundingClientRect().left + 40 + 80 + 48 + 40 // 40 (half left) + 80 (left width) + 48 (gap-12) + 40 (half right) = 208
                       : 0,
                     containerRef.current
-                      ? containerRef.current.getBoundingClientRect().top + 64 // center of right eye
+                      ? containerRef.current.getBoundingClientRect().top + 40 // center of right eye
                       : 0
                   ).x}px), calc(-50% + ${calculatePupilPosition(
                     containerRef.current
-                      ? containerRef.current.getBoundingClientRect().left + 64 + 128 + 64
+                      ? containerRef.current.getBoundingClientRect().left + 40 + 80 + 48 + 40
                       : 0,
                     containerRef.current
-                      ? containerRef.current.getBoundingClientRect().top + 64
+                      ? containerRef.current.getBoundingClientRect().top + 40
                       : 0
                   ).y}px))`,
                 }}
               >
-                <div className="w-full h-full bg-black rounded-full border-2 border-jarvis-red shadow-lg shadow-jarvis-red">
+                <div className="w-full h-full bg-black rounded-full border border-jarvis-red shadow-lg shadow-jarvis-red">
                   {/* Pupil highlight */}
-                  <div className="absolute top-2 right-2 w-3 h-3 bg-jarvis-orange rounded-full opacity-80" />
+                  <div className="absolute top-1 right-1 w-2 h-2 bg-jarvis-orange rounded-full opacity-80" />
                 </div>
               </div>
             </div>
@@ -141,16 +141,16 @@ export function AIEyes() {
 
           {/* Scanning lines effect */}
           <div className="absolute inset-0 overflow-hidden rounded-full opacity-30">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-jarvis-orange/40 to-transparent h-8 animate-scan" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-jarvis-orange/40 to-transparent h-5 animate-scan" />
           </div>
         </div>
       </div>
 
       {/* Connecting light beam between eyes */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-0.5 bg-gradient-to-r from-transparent via-jarvis-red to-transparent opacity-40" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-0.5 bg-gradient-to-r from-transparent via-jarvis-red to-transparent opacity-40" />
 
       {/* Subtle outer glow around entire face area */}
-      <div className="absolute -inset-16 bg-gradient-radial from-jarvis-red/10 via-transparent to-transparent rounded-full blur-3xl" />
+      <div className="absolute -inset-8 bg-gradient-radial from-jarvis-red/10 via-transparent to-transparent rounded-full blur-2xl" />
     </div>
   );
 }
