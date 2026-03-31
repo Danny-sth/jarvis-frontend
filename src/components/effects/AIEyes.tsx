@@ -38,32 +38,33 @@ export function AIEyes() {
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}
     >
-      <div className="relative flex gap-16">
+      <div className="relative flex gap-20">
         {/* Left Eye */}
-        <div className="relative w-28 h-16 flex items-center justify-center">
+        <div className="relative w-40 h-12 flex items-center justify-center">
           {/* Outer glow */}
-          <div className="absolute inset-0 bg-cyan-400/40 blur-2xl rounded-full animate-pulse" />
+          <div className="absolute inset-0 bg-cyan-400/40 blur-3xl animate-pulse" />
 
-          {/* Eye shape - oval */}
+          {/* Eye shape - wide oval slit */}
           <div
-            className="relative w-24 h-12 bg-gradient-to-r from-cyan-400 via-cyan-300 to-cyan-400 rounded-full shadow-lg shadow-cyan-400 opacity-90 transition-transform duration-200 ease-out"
+            className="relative w-36 h-10 bg-gradient-to-r from-transparent via-cyan-300 to-transparent shadow-2xl shadow-cyan-400 opacity-95 transition-transform duration-200 ease-out"
             style={{
+              borderRadius: '50% / 100%',
               transform: `rotate(${calculateEyeRotation(
                 containerRef.current
-                  ? containerRef.current.getBoundingClientRect().left + 56
+                  ? containerRef.current.getBoundingClientRect().left + 80
                   : 0,
                 containerRef.current
-                  ? containerRef.current.getBoundingClientRect().top + 32
+                  ? containerRef.current.getBoundingClientRect().top + 24
                   : 0
-              ) * 0.1}deg)`,
-              filter: 'drop-shadow(0 0 10px rgba(34, 211, 238, 0.8)) drop-shadow(0 0 20px rgba(6, 182, 212, 0.6))',
+              ) * 0.05}deg)`,
+              filter: 'drop-shadow(0 0 15px rgba(34, 211, 238, 0.9)) drop-shadow(0 0 30px rgba(6, 182, 212, 0.7))',
             }}
           >
-            {/* Inner glow */}
-            <div className="absolute inset-1 bg-gradient-to-r from-cyan-300 via-white to-cyan-300 rounded-full opacity-60" />
+            {/* Inner bright glow */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-70" style={{ borderRadius: '50% / 100%' }} />
 
-            {/* Highlight */}
-            <div className="absolute top-2 left-1/4 w-8 h-3 bg-white rounded-full opacity-40 blur-sm" />
+            {/* Center bright line */}
+            <div className="absolute inset-y-0 left-1/3 right-1/3 bg-cyan-100 opacity-80" style={{ borderRadius: '50% / 100%' }} />
           </div>
 
           {/* Scanning line effect */}
@@ -73,30 +74,31 @@ export function AIEyes() {
         </div>
 
         {/* Right Eye */}
-        <div className="relative w-28 h-16 flex items-center justify-center">
+        <div className="relative w-40 h-12 flex items-center justify-center">
           {/* Outer glow */}
-          <div className="absolute inset-0 bg-cyan-400/40 blur-2xl rounded-full animate-pulse" />
+          <div className="absolute inset-0 bg-cyan-400/40 blur-3xl animate-pulse" />
 
-          {/* Eye shape - oval */}
+          {/* Eye shape - wide oval slit */}
           <div
-            className="relative w-24 h-12 bg-gradient-to-r from-cyan-400 via-cyan-300 to-cyan-400 rounded-full shadow-lg shadow-cyan-400 opacity-90 transition-transform duration-200 ease-out"
+            className="relative w-36 h-10 bg-gradient-to-r from-transparent via-cyan-300 to-transparent shadow-2xl shadow-cyan-400 opacity-95 transition-transform duration-200 ease-out"
             style={{
+              borderRadius: '50% / 100%',
               transform: `rotate(${calculateEyeRotation(
                 containerRef.current
-                  ? containerRef.current.getBoundingClientRect().left + 56 + 112 + 64 // 56 (half left) + 112 (left width) + 64 (gap) + 56 (half right)
+                  ? containerRef.current.getBoundingClientRect().left + 80 + 160 + 80 // 80 (half left) + 160 (left width) + 80 (gap-20) + 80 (half right)
                   : 0,
                 containerRef.current
-                  ? containerRef.current.getBoundingClientRect().top + 32
+                  ? containerRef.current.getBoundingClientRect().top + 24
                   : 0
-              ) * 0.1}deg)`,
-              filter: 'drop-shadow(0 0 10px rgba(34, 211, 238, 0.8)) drop-shadow(0 0 20px rgba(6, 182, 212, 0.6))',
+              ) * 0.05}deg)`,
+              filter: 'drop-shadow(0 0 15px rgba(34, 211, 238, 0.9)) drop-shadow(0 0 30px rgba(6, 182, 212, 0.7))',
             }}
           >
-            {/* Inner glow */}
-            <div className="absolute inset-1 bg-gradient-to-r from-cyan-300 via-white to-cyan-300 rounded-full opacity-60" />
+            {/* Inner bright glow */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-70" style={{ borderRadius: '50% / 100%' }} />
 
-            {/* Highlight */}
-            <div className="absolute top-2 left-1/4 w-8 h-3 bg-white rounded-full opacity-40 blur-sm" />
+            {/* Center bright line */}
+            <div className="absolute inset-y-0 left-1/3 right-1/3 bg-cyan-100 opacity-80" style={{ borderRadius: '50% / 100%' }} />
           </div>
 
           {/* Scanning line effect */}
@@ -107,10 +109,10 @@ export function AIEyes() {
       </div>
 
       {/* Connecting light beam between eyes */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-0.5 bg-gradient-to-r from-transparent via-cyan-300/60 to-transparent" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-px bg-gradient-to-r from-transparent via-cyan-300/50 to-transparent" />
 
       {/* Subtle outer glow */}
-      <div className="absolute -inset-12 bg-gradient-radial from-cyan-400/20 via-transparent to-transparent rounded-full blur-3xl" />
+      <div className="absolute -inset-16 bg-gradient-radial from-cyan-400/20 via-transparent to-transparent blur-3xl" />
     </div>
   );
 }
