@@ -58,9 +58,9 @@ export default function SystemHealth() {
                     {systemInfo.cpu_percent.toFixed(1)}%
                   </span>
                 </div>
-                <div className="w-full bg-jarvis-bg-dark rounded-full h-3">
+                <div className="w-full bg-jarvis-bg-surface border border-cyan-400/20 rounded-full h-3">
                   <div
-                    className="bg-jarvis-cyan h-3 rounded-full transition-all duration-500"
+                    className="bg-gradient-to-r from-cyan-400 to-cyan-300 h-3 rounded-full transition-all duration-500 shadow-lg shadow-cyan-400/50"
                     style={{ width: `${systemInfo.cpu_percent}%` }}
                   />
                 </div>
@@ -71,17 +71,17 @@ export default function SystemHealth() {
           {/* Memory */}
           <Card>
             <div className="flex items-center gap-4 mb-4">
-              <Activity className="w-8 h-8 text-jarvis-purple" />
+              <Activity className="w-8 h-8 text-blue-400" />
               <div className="flex-1">
                 <div className="flex justify-between mb-2">
-                  <span className="font-display text-jarvis-purple">MEMORY USAGE</span>
+                  <span className="font-display text-blue-400">MEMORY USAGE</span>
                   <span className="font-mono text-jarvis-text-primary">
                     {systemInfo.memory_percent.toFixed(1)}%
                   </span>
                 </div>
-                <div className="w-full bg-jarvis-bg-dark rounded-full h-3">
+                <div className="w-full bg-jarvis-bg-surface border border-blue-400/20 rounded-full h-3">
                   <div
-                    className="bg-jarvis-purple h-3 rounded-full transition-all duration-500"
+                    className="bg-gradient-to-r from-blue-400 to-blue-500 h-3 rounded-full transition-all duration-500 shadow-lg shadow-blue-400/50"
                     style={{ width: `${systemInfo.memory_percent}%` }}
                   />
                 </div>
@@ -100,9 +100,9 @@ export default function SystemHealth() {
                     {systemInfo.disk_percent.toFixed(1)}%
                   </span>
                 </div>
-                <div className="w-full bg-jarvis-bg-dark rounded-full h-3">
+                <div className="w-full bg-jarvis-bg-surface border border-jarvis-orange/20 rounded-full h-3">
                   <div
-                    className="bg-jarvis-orange h-3 rounded-full transition-all duration-500"
+                    className="bg-gradient-to-r from-jarvis-orange to-jarvis-gold h-3 rounded-full transition-all duration-500 shadow-lg shadow-jarvis-orange/50"
                     style={{ width: `${systemInfo.disk_percent}%` }}
                   />
                 </div>
