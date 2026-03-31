@@ -38,11 +38,11 @@ export function AIEyes() {
   return (
     <div
       ref={containerRef}
-      className={`fixed top-20 left-1/2 -translate-x-1/2 z-0 pointer-events-none transition-opacity duration-1000 ${
+      className={`fixed top-6 right-8 z-[35] pointer-events-none transition-opacity duration-1000 ${
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}
     >
-      <div className="relative flex gap-24">
+      <div className="relative flex gap-16">
         {/* Left Eye */}
         <div className="relative w-32 h-32">
           {/* Eye outer glow */}
@@ -65,10 +65,10 @@ export function AIEyes() {
                 style={{
                   transform: `translate(calc(-50% + ${calculatePupilPosition(
                     containerRef.current
-                      ? containerRef.current.getBoundingClientRect().left + 64
+                      ? containerRef.current.getBoundingClientRect().left + 64 // center of left eye
                       : 0,
                     containerRef.current
-                      ? containerRef.current.getBoundingClientRect().top + 64
+                      ? containerRef.current.getBoundingClientRect().top + 64 // center of left eye
                       : 0
                   ).x}px), calc(-50% + ${calculatePupilPosition(
                     containerRef.current
@@ -116,14 +116,14 @@ export function AIEyes() {
                 style={{
                   transform: `translate(calc(-50% + ${calculatePupilPosition(
                     containerRef.current
-                      ? containerRef.current.getBoundingClientRect().left + 64 + 192 // 64 (half eye) + 96 (gap) + 96 (gap) = offset to right eye
+                      ? containerRef.current.getBoundingClientRect().left + 64 + 128 + 64 // 64 (half left eye) + 128 (left eye width) + 64 (gap) + 64 (half right eye) = 256
                       : 0,
                     containerRef.current
-                      ? containerRef.current.getBoundingClientRect().top + 64
+                      ? containerRef.current.getBoundingClientRect().top + 64 // center of right eye
                       : 0
                   ).x}px), calc(-50% + ${calculatePupilPosition(
                     containerRef.current
-                      ? containerRef.current.getBoundingClientRect().left + 64 + 192
+                      ? containerRef.current.getBoundingClientRect().left + 64 + 128 + 64
                       : 0,
                     containerRef.current
                       ? containerRef.current.getBoundingClientRect().top + 64
