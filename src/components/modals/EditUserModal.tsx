@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { api, User } from '../../lib/api-client';
+import { api, type User } from '../../lib/api-client';
 import { useToastStore } from '../../store/toastStore';
 import { Modal } from '../ui/Modal';
 import { Input } from '../ui/Input';
