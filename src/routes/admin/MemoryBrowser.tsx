@@ -1,17 +1,19 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Search, Brain } from 'lucide-react';
+import { Search, Brain, Plus } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { Card } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { useAuthStore } from '../../store/auth';
 import { formatDate } from '../../lib/utils';
+import { StoreMemoryModal } from '../../components/modals/StoreMemoryModal';
 
 export default function MemoryBrowser() {
   const { userId } = useAuthStore();
   const [query, setQuery] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [storeModalOpen, setStoreModalOpen] = useState(false);
 
   const { data: results, isLoading } = useQuery({
     queryKey: ['memory-search', userId, searchQuery],
@@ -27,11 +29,17 @@ export default function MemoryBrowser() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-display text-jarvis-cyan mb-2">MEMORY BROWSER</h1>
-        <p className="text-jarvis-text-secondary font-body">
-          Search through Cortex memory (pgvector)
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-display text-jarvis-cyan mb-2">MEMORY BROWSER</h1>
+          <p className="text-jarvis-text-secondary font-body">
+            Search through Cortex memory (pgvector)
+          </p>
+        </div>
+        <Button variant="primary" onClick={() => setStoreModalOpen(true)}>
+          <Plus className="w-5 h-5 mr-2" />
+          STORE MEMORY
+        </Button>
       </div>
 
       {/* Search Form */}
@@ -84,6 +92,11 @@ export default function MemoryBrowser() {
           </p>
         </Card>
       ) : null}
+
+      <StoreMemoryModal
+        isOpen={storeModalOpen}
+        onClose={() => setStoreModalOpen(false)}
+      />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, Clock } from 'lucide-react';
 import { api } from '../../lib/api-client';
@@ -5,8 +6,10 @@ import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { useAuthStore } from '../../store/auth';
 import { formatDate } from '../../lib/utils';
+import { CreateRecurringTaskModal } from '../../components/modals/CreateRecurringTaskModal';
 
 export default function RecurringTasks() {
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   const { userId } = useAuthStore();
   const queryClient = useQueryClient();
 
@@ -33,7 +36,7 @@ export default function RecurringTasks() {
             Schedule tasks with cron expressions
           </p>
         </div>
-        <Button variant="primary">
+        <Button variant="primary" onClick={() => setCreateModalOpen(true)}>
           <Plus className="w-5 h-5 mr-2" />
           NEW TASK
         </Button>
@@ -93,13 +96,18 @@ export default function RecurringTasks() {
         <Card>
           <div className="text-center py-8">
             <p className="text-jarvis-text-muted font-body mb-4">No recurring tasks yet</p>
-            <Button variant="primary">
+            <Button variant="primary" onClick={() => setCreateModalOpen(true)}>
               <Plus className="w-5 h-5 mr-2" />
               CREATE FIRST TASK
             </Button>
           </div>
         </Card>
       )}
+
+      <CreateRecurringTaskModal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+      />
     </div>
   );
 }

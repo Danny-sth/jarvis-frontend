@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Play, Trash2 } from 'lucide-react';
 import { api } from '../../lib/api-client';
@@ -5,8 +6,10 @@ import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { useAuthStore } from '../../store/auth';
 import { formatDate } from '../../lib/utils';
+import { CreateWorkflowModal } from '../../components/modals/CreateWorkflowModal';
 
 export default function WorkflowEditor() {
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   const { userId } = useAuthStore();
   const queryClient = useQueryClient();
 
@@ -37,7 +40,7 @@ export default function WorkflowEditor() {
             Create and manage automated workflows
           </p>
         </div>
-        <Button variant="primary">
+        <Button variant="primary" onClick={() => setCreateModalOpen(true)}>
           <Plus className="w-5 h-5 mr-2" />
           NEW WORKFLOW
         </Button>
@@ -94,13 +97,18 @@ export default function WorkflowEditor() {
         <Card>
           <div className="text-center py-8">
             <p className="text-jarvis-text-muted font-body mb-4">No workflows yet</p>
-            <Button variant="primary">
+            <Button variant="primary" onClick={() => setCreateModalOpen(true)}>
               <Plus className="w-5 h-5 mr-2" />
               CREATE FIRST WORKFLOW
             </Button>
           </div>
         </Card>
       )}
+
+      <CreateWorkflowModal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+      />
     </div>
   );
 }

@@ -106,6 +106,15 @@ export interface ChatResponse {
   timestamp: string;
 }
 
+export interface User {
+  id: number;
+  username: string;
+  role: string;
+  telegram_id: number | null;
+  is_active: boolean;
+  created_at: string;
+}
+
 // ============================================================================
 // API CLIENT
 // ============================================================================
@@ -150,6 +159,20 @@ class JarvisAPI {
       headers,
     });
 
+    // Handle 401 Unauthorized
+    if (response.status === 401) {
+      // Clear auth state
+      localStorage.removeItem('jarvis_token');
+      localStorage.removeItem('jarvis_user_id');
+      localStorage.removeItem('jarvis_username');
+      localStorage.removeItem('jarvis_role');
+      this.token = null;
+
+      // Redirect to login
+      window.location.href = '/login';
+      throw new Error('Unauthorized');
+    }
+
     if (!response.ok) {
       const error = await response.text();
       throw new Error(`API Error: ${response.status} - ${error}`);
@@ -166,8 +189,8 @@ class JarvisAPI {
   // AUTH
   // ============================================================================
 
-  async login(username: string, password: string): Promise<{ token: string }> {
-    const response = await this.request<{ token: string }>('/api/auth/login', {
+  async login(username: string, password: string): Promise<{ token: string; user_id: number; role: string }> {
+    const response = await this.request<{ token: string; user_id: number; role: string }>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ username, password }),
     });
@@ -477,6 +500,53 @@ class JarvisAPI {
 
   async getSystemInfo(): Promise<SystemInfo> {
     return this.request<SystemInfo>('/api/system/info');
+  }
+
+  // ============================================================================
+  // USER MANAGEMENT (4 endpoints)
+  // ============================================================================
+
+  async listUsers(search?: string, role?: string): Promise<User[]> {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (role) params.set('role', role);
+    const queryString = params.toString();
+    return this.request<User[]>(`/api/users${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async createUser(user: {
+    username: string;
+    password: string;
+    role: string;
+    telegram_id?: number | null;
+    is_active: boolean;
+  }): Promise<User> {
+    return this.request<User>('/api/users', {
+      method: 'POST',
+      body: JSON.stringify(user),
+    });
+  }
+
+  async updateUser(
+    id: number,
+    updates: {
+      username?: string;
+      password?: string;
+      role?: string;
+      telegram_id?: number | null;
+      is_active?: boolean;
+    }
+  ): Promise<User> {
+    return this.request<User>(`/api/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    await this.request<void>(`/api/users/${id}`, {
+      method: 'DELETE',
+    });
   }
 }
 

@@ -8,6 +8,8 @@ import {
   Brain,
   Settings,
   LogOut,
+  BookOpen,
+  Users,
 } from 'lucide-react';
 import { useAuthStore } from '../store/auth';
 
@@ -19,10 +21,16 @@ const navItems = [
   { path: '/admin/recurring', icon: Clock, label: 'RECURRING' },
   { path: '/admin/memory', icon: Brain, label: 'MEMORY' },
   { path: '/admin/system', icon: Settings, label: 'SYSTEM' },
+  { path: '/admin/users', icon: Users, label: 'USERS', adminOnly: true },
 ];
 
 export default function Sidebar() {
-  const { logout, username } = useAuthStore();
+  const { logout, username, role } = useAuthStore();
+
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/login';
+  };
 
   return (
     <aside className="w-64 bg-jarvis-bg-sidebar border-r border-jarvis-cyan/20 flex flex-col h-screen sticky top-0">
@@ -39,29 +47,45 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-        {navItems.map(({ path, icon: Icon, label }) => (
-          <NavLink
-            key={path}
-            to={path}
-            end={path === '/admin'}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                isActive
-                  ? 'bg-jarvis-cyan/10 text-jarvis-cyan border border-jarvis-cyan/30'
-                  : 'text-jarvis-text-secondary hover:bg-jarvis-bg-card hover:text-jarvis-text-primary'
-              }`
-            }
-          >
-            <Icon className="w-5 h-5" />
-            <span className="font-body font-semibold text-sm">{label}</span>
-          </NavLink>
-        ))}
+        {navItems.map(({ path, icon: Icon, label, adminOnly }) => {
+          // Hide admin-only links for non-admin users
+          if (adminOnly && role !== 'root' && role !== 'admin') {
+            return null;
+          }
+
+          return (
+            <NavLink
+              key={path}
+              to={path}
+              end={path === '/admin'}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  isActive
+                    ? 'bg-jarvis-cyan/10 text-jarvis-cyan border border-jarvis-cyan/30'
+                    : 'text-jarvis-text-secondary hover:bg-jarvis-bg-card hover:text-jarvis-text-primary'
+                }`
+              }
+            >
+              <Icon className="w-5 h-5" />
+              <span className="font-body font-semibold text-sm">{label}</span>
+            </NavLink>
+          );
+        })}
+
+        {/* Link to Documentation */}
+        <a
+          href="/docs"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-jarvis-text-secondary hover:bg-jarvis-bg-card hover:text-jarvis-text-primary"
+        >
+          <BookOpen className="w-5 h-5" />
+          <span className="font-body font-semibold text-sm">DOCUMENTATION</span>
+        </a>
       </nav>
 
       {/* Footer */}
       <div className="p-4 border-t border-jarvis-cyan/20">
         <button
-          onClick={logout}
+          onClick={handleLogout}
           className="w-full flex items-center gap-3 px-4 py-3 bg-jarvis-orange hover:bg-jarvis-orange/80 text-white rounded-lg font-body font-semibold text-sm transition-colors"
         >
           <LogOut className="w-5 h-5" />
