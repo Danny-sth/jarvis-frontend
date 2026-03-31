@@ -126,6 +126,79 @@ export interface DocCategory {
   files: DocFile[]; // Files in this category
 }
 
+export interface LiveMetrics {
+  llm: {
+    total_calls: number;
+    total_cost_usd: number;
+    calls_by_caller: Record<string, { count: number; cost: number }>;
+  };
+  api: {
+    total_requests: number;
+  };
+  workers: {
+    queue_depth: { pending: number; session: number; global: number };
+  };
+  tools: {
+    total_executions: number;
+  };
+  timestamp: string;
+}
+
+export interface MonitoringEvent {
+  id: number;
+  created_at: string;
+  event_type: 'api_request' | 'tool_execution' | 'worker_task' | 'external_service';
+  name: string;
+  status: 'success' | 'error' | 'timeout';
+  duration_ms: number;
+  user_id?: string;
+  request_id?: string;
+  error_message?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface LLMUsageSummary {
+  period: string;
+  summary: {
+    total_calls: number;
+    total_cost_usd: number;
+    by_caller: Record<string, {
+      calls: number;
+      input_tokens: number;
+      output_tokens: number;
+      cache_read_tokens: number;
+      cache_creation_tokens: number;
+      cost_usd: number;
+      estimated: boolean;
+    }>;
+  };
+}
+
+export interface StatsSummary {
+  period: string;
+  time_range: string;
+  api: {
+    total_requests: number;
+    error_rate: number;
+    avg_duration_ms: number;
+    p95_duration_ms: number;
+  };
+  llm: {
+    total_calls: number;
+    total_cost_usd: number;
+    avg_tokens_per_call: number;
+  };
+  workers: {
+    processed_tasks: number;
+    failed_tasks: number;
+    avg_duration_ms: number;
+  };
+  tools: {
+    total_executions: number;
+    failed_executions: number;
+  };
+}
+
 // ============================================================================
 // API CLIENT
 // ============================================================================
@@ -579,6 +652,53 @@ class JarvisAPI {
 
   async listDocs(): Promise<DocCategory[]> {
     return this.request<DocCategory[]>('/api/docs/list');
+  }
+
+  // ============================================================================
+  // MONITORING (4 endpoints)
+  // ============================================================================
+
+  async getLiveMetrics(): Promise<LiveMetrics> {
+    return this.request<LiveMetrics>('/api/monitoring/metrics/live');
+  }
+
+  async getMonitoringEvents(params?: {
+    event_type?: string;
+    status?: string;
+    user_id?: string;
+    request_id?: string;
+    time_range?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<{ total: number; limit: number; offset: number; events: MonitoringEvent[] }> {
+    const query = new URLSearchParams();
+    if (params?.event_type) query.set('event_type', params.event_type);
+    if (params?.status) query.set('status', params.status);
+    if (params?.user_id) query.set('user_id', params.user_id);
+    if (params?.request_id) query.set('request_id', params.request_id);
+    if (params?.time_range) query.set('time_range', params.time_range);
+    if (params?.limit) query.set('limit', params.limit.toString());
+    if (params?.offset) query.set('offset', params.offset.toString());
+
+    const queryString = query.toString();
+    return this.request(`/api/monitoring/events${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async getLLMUsage(params?: {
+    period?: string;
+    caller?: string;
+  }): Promise<LLMUsageSummary> {
+    const query = new URLSearchParams();
+    if (params?.period) query.set('period', params.period);
+    if (params?.caller) query.set('caller', params.caller);
+
+    const queryString = query.toString();
+    return this.request(`/api/monitoring/llm/usage${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async getStatsSummary(period?: string): Promise<StatsSummary> {
+    const query = period ? `?period=${period}` : '';
+    return this.request(`/api/monitoring/stats/summary${query}`);
   }
 }
 

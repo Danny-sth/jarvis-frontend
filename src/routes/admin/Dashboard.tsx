@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { Activity, ListTodo, CheckCircle2, XCircle } from 'lucide-react';
+import { Activity, ListTodo, CheckCircle2, XCircle, Zap, DollarSign, Database } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { Card } from '../../components/ui/Card';
+import { EventFeed } from '../../components/monitoring/EventFeed';
+import { LLMCostChart } from '../../components/monitoring/LLMCostChart';
 
 export default function Dashboard() {
 
@@ -15,6 +17,19 @@ export default function Dashboard() {
     queryKey: ['system-info'],
     queryFn: () => api.getSystemInfo(),
     refetchInterval: 10000,
+  });
+
+  // Monitoring queries
+  const { data: liveMetrics } = useQuery({
+    queryKey: ['live-metrics'],
+    queryFn: () => api.getLiveMetrics(),
+    refetchInterval: 5000, // 5 seconds
+  });
+
+  const { data: statsSummary } = useQuery({
+    queryKey: ['stats-summary'],
+    queryFn: () => api.getStatsSummary('last_24h'),
+    refetchInterval: 30000, // 30 seconds
   });
 
   const stats = [
@@ -141,6 +156,135 @@ export default function Dashboard() {
           </div>
         </div>
       </Card>
+
+      {/* LLM Metrics Section */}
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-2xl font-display text-jarvis-cyan mb-4">LLM METRICS</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-body text-jarvis-text-muted mb-1">
+                    TOTAL LLM CALLS
+                  </p>
+                  <p className="text-3xl font-display font-bold text-jarvis-cyan">
+                    {liveMetrics?.llm.total_calls ?? 0}
+                  </p>
+                </div>
+                <Zap className="w-10 h-10 text-jarvis-cyan opacity-20" />
+              </div>
+            </Card>
+
+            <Card>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-body text-jarvis-text-muted mb-1">
+                    TOTAL COST
+                  </p>
+                  <p className="text-3xl font-display font-bold text-jarvis-purple">
+                    ${liveMetrics?.llm.total_cost_usd.toFixed(2) ?? '0.00'}
+                  </p>
+                </div>
+                <DollarSign className="w-10 h-10 text-jarvis-purple opacity-20" />
+              </div>
+            </Card>
+
+            <Card>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-body text-jarvis-text-muted mb-1">
+                    TOOL EXECUTIONS
+                  </p>
+                  <p className="text-3xl font-display font-bold text-jarvis-orange">
+                    {liveMetrics?.tools.total_executions ?? 0}
+                  </p>
+                </div>
+                <Database className="w-10 h-10 text-jarvis-orange opacity-20" />
+              </div>
+            </Card>
+          </div>
+        </div>
+
+        {/* LLM Calls by Caller breakdown */}
+        {liveMetrics && Object.keys(liveMetrics.llm.calls_by_caller).length > 0 && (
+          <Card>
+            <h3 className="text-lg font-display text-jarvis-cyan mb-4">
+              CALLS BY CALLER
+            </h3>
+            <div className="space-y-3">
+              {Object.entries(liveMetrics.llm.calls_by_caller).map(([caller, data]) => (
+                <div key={caller} className="flex items-center justify-between">
+                  <span className="text-sm font-body text-jarvis-text-secondary">
+                    {caller}
+                  </span>
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-mono text-jarvis-text-primary">
+                      {data.count} calls
+                    </span>
+                    <span className="text-sm font-mono text-jarvis-purple">
+                      ${data.cost.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+      </div>
+
+      {/* API Performance Section */}
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-2xl font-display text-jarvis-cyan mb-4">
+            API PERFORMANCE (24H)
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <div>
+                <p className="text-sm font-body text-jarvis-text-muted mb-1">
+                  TOTAL REQUESTS
+                </p>
+                <p className="text-3xl font-display font-bold text-jarvis-cyan">
+                  {statsSummary?.api.total_requests.toLocaleString() ?? 0}
+                </p>
+              </div>
+            </Card>
+
+            <Card>
+              <div>
+                <p className="text-sm font-body text-jarvis-text-muted mb-1">
+                  ERROR RATE
+                </p>
+                <p className={`text-3xl font-display font-bold ${
+                  (statsSummary?.api.error_rate ?? 0) > 5
+                    ? 'text-jarvis-orange'
+                    : 'text-green-500'
+                }`}>
+                  {statsSummary?.api.error_rate.toFixed(2) ?? 0}%
+                </p>
+              </div>
+            </Card>
+
+            <Card>
+              <div>
+                <p className="text-sm font-body text-jarvis-text-muted mb-1">
+                  P95 LATENCY
+                </p>
+                <p className="text-3xl font-display font-bold text-jarvis-purple">
+                  {statsSummary?.api.p95_duration_ms ?? 0}ms
+                </p>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </div>
+
+      {/* Event Feed */}
+      <EventFeed />
+
+      {/* LLM Cost Chart */}
+      <LLMCostChart />
     </div>
   );
 }
