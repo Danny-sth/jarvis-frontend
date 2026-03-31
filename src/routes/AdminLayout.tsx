@@ -6,6 +6,7 @@ import { MobileNav } from '../components/MobileNav';
 import { useIsMobile } from '../hooks/useMediaQuery';
 import { AnimatedBackground } from '../components/effects/AnimatedBackground';
 import { ScanLines } from '../components/effects/ScanLines';
+import { AIEyes } from '../components/effects/AIEyes';
 
 export default function AdminLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -16,17 +17,18 @@ export default function AdminLayout() {
       {/* Animated Background Effects */}
       <AnimatedBackground />
       <ScanLines />
+      <AIEyes />
 
       {/* Desktop Sidebar */}
       {!isMobile && <Sidebar />}
 
       {/* Mobile Header */}
       {isMobile && (
-        <header className="fixed top-0 left-0 right-0 z-40 bg-jarvis-bg-sidebar border-b border-jarvis-cyan/20 px-4 py-3 flex items-center justify-between">
-          <h1 className="text-lg font-display text-jarvis-cyan">JARVIS</h1>
+        <header className="fixed top-0 left-0 right-0 z-40 bg-jarvis-bg-sidebar border-b border-jarvis-red/20 px-4 py-3 flex items-center justify-between">
+          <h1 className="text-lg font-display text-jarvis-orange glow-orange">JARVIS</h1>
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="text-jarvis-text-muted hover:text-jarvis-cyan transition-colors p-1"
+            className="text-jarvis-text-muted hover:text-jarvis-orange transition-colors p-1"
             aria-label="Open menu"
           >
             <Menu className="w-6 h-6" />

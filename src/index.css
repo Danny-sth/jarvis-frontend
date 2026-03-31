@@ -167,3 +167,7 @@ body {
   backdrop-filter: blur(10px);
   border: 1px solid rgba(220, 20, 60, 0.2);
 }
+
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
