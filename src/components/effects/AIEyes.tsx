@@ -34,8 +34,8 @@ export function AIEyes() {
   return (
     <div
       ref={containerRef}
-      className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-opacity duration-1000 ${
-        isVisible ? 'opacity-100' : 'opacity-0'
+      className={`fixed top-4 left-1/2 -translate-x-1/2 z-[5] pointer-events-none transition-opacity duration-1000 ${
+        isVisible ? 'opacity-30' : 'opacity-0'
       }`}
     >
       <div className="relative flex gap-20">
