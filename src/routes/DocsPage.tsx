@@ -15,9 +15,9 @@ export default function DocsPage() {
       setError(null);
 
       try {
-        const response = await fetch(`/docs/${page}.md`);
+        const response = await fetch(`/api/docs/${page}/content`);
         if (!response.ok) {
-          throw new Error(`Failed to load ${page}.md`);
+          throw new Error(`Failed to load ${page}`);
         }
         const text = await response.text();
         setContent(text);

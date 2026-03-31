@@ -4,13 +4,19 @@ import { Menu } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import { MobileNav } from '../components/MobileNav';
 import { useIsMobile } from '../hooks/useMediaQuery';
+import { AnimatedBackground } from '../components/effects/AnimatedBackground';
+import { ScanLines } from '../components/effects/ScanLines';
 
 export default function AdminLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMobile = useIsMobile();
 
   return (
-    <div className="flex min-h-screen bg-jarvis-bg-dark">
+    <div className="flex min-h-screen bg-jarvis-bg-dark relative">
+      {/* Animated Background Effects */}
+      <AnimatedBackground />
+      <ScanLines />
+
       {/* Desktop Sidebar */}
       {!isMobile && <Sidebar />}
 
