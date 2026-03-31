@@ -1,9 +1,24 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer base {
-  body {
-    @apply bg-jarvis-bg-dark text-jarvis-text-primary font-body;
-  }
+@theme {
+  --color-jarvis-cyan: #00d4ff;
+  --color-jarvis-orange: #ff6b35;
+  --color-jarvis-purple: #8264dc;
+  --color-jarvis-bg-dark: #0a0e14;
+  --color-jarvis-bg-surface: #0d1219;
+  --color-jarvis-bg-sidebar: #080b0f;
+  --color-jarvis-bg-card: #141920;
+  --color-jarvis-text-primary: #e0e6ed;
+  --color-jarvis-text-secondary: #8f9ba8;
+  --color-jarvis-text-muted: #5c6773;
+
+  --font-family-display: 'Orbitron', monospace;
+  --font-family-body: 'Rajdhani', sans-serif;
+  --font-family-mono: 'JetBrains Mono', monospace;
+}
+
+body {
+  background-color: var(--color-jarvis-bg-dark);
+  color: var(--color-jarvis-text-primary);
+  font-family: var(--font-family-body);
 }

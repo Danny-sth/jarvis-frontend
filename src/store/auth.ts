@@ -17,7 +17,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   login: async (username: string, password: string) => {
     try {
-      const response = await api.login(username, password);
+      await api.login(username, password);
       localStorage.setItem('jarvis_username', username);
       localStorage.setItem('jarvis_user_id', username); // Assuming user_id = username for now
       set({

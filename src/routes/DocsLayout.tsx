@@ -1,5 +1,5 @@
 import { Outlet, Link } from 'react-router-dom';
-import { BookOpen, Home } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 
 export default function DocsLayout() {
   return (

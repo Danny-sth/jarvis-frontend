@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Save, Play } from 'lucide-react';
-import { api, HeartbeatConfig as IHeartbeatConfig } from '../../lib/api-client';
+import { api } from '../../lib/api-client';
+import type { HeartbeatConfig as IHeartbeatConfig } from '../../lib/api-client';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';

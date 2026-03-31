@@ -77,13 +77,13 @@ export default function DocsPage() {
                 {children}
               </p>
             ),
-            code: ({ inline, children }) =>
-              inline ? (
-                <code className="bg-jarvis-bg-card text-jarvis-cyan px-2 py-1 rounded font-mono text-sm">
+            code: ({ children, className }) =>
+              className ? (
+                <code className="block bg-jarvis-bg-card text-jarvis-cyan p-4 rounded-lg font-mono text-sm overflow-x-auto">
                   {children}
                 </code>
               ) : (
-                <code className="block bg-jarvis-bg-card text-jarvis-cyan p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                <code className="bg-jarvis-bg-card text-jarvis-cyan px-2 py-1 rounded font-mono text-sm">
                   {children}
                 </code>
               ),

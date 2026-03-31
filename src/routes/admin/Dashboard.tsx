@@ -1,11 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { Activity, ListTodo, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { Activity, ListTodo, CheckCircle2, XCircle } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { Card } from '../../components/ui/Card';
-import { useAuthStore } from '../../store/auth';
 
 export default function Dashboard() {
-  const { userId } = useAuthStore();
 
   const { data: queueStats, isLoading: statsLoading } = useQuery({
     queryKey: ['queue-stats'],
