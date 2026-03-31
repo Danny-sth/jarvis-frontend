@@ -46,17 +46,17 @@ export function AIEyes() {
         {/* Left Eye */}
         <div className="relative w-20 h-20">
           {/* Eye outer glow */}
-          <div className="absolute inset-0 bg-jarvis-red/20 rounded-full blur-2xl animate-pulse" />
+          <div className="absolute inset-0 bg-blue-400/30 rounded-full blur-2xl animate-pulse" />
 
           {/* Eye socket */}
-          <div className="absolute inset-0 bg-gradient-to-br from-jarvis-red/30 to-jarvis-orange/20 rounded-full border-2 border-jarvis-red/40 shadow-lg shadow-jarvis-red/50">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/40 to-cyan-400/30 rounded-full border-2 border-blue-400/50 shadow-lg shadow-blue-400/50">
             {/* Inner eye */}
-            <div className="absolute inset-4 bg-gradient-to-br from-black to-jarvis-bg-dark rounded-full border border-jarvis-orange/30">
+            <div className="absolute inset-4 bg-gradient-to-br from-black to-jarvis-bg-dark rounded-full border border-cyan-400/40">
               {/* Iris */}
-              <div className="absolute inset-3 bg-gradient-to-br from-jarvis-orange via-jarvis-red to-jarvis-gold rounded-full opacity-60 animate-glow-pulse">
+              <div className="absolute inset-3 bg-gradient-to-br from-cyan-300 via-blue-400 to-blue-500 rounded-full opacity-70 animate-glow-pulse">
                 {/* Iris details - rings */}
-                <div className="absolute inset-2 border border-jarvis-gold/30 rounded-full" />
-                <div className="absolute inset-4 border border-jarvis-orange/40 rounded-full" />
+                <div className="absolute inset-2 border border-cyan-300/40 rounded-full" />
+                <div className="absolute inset-4 border border-blue-300/50 rounded-full" />
               </div>
 
               {/* Pupil (moves with mouse) */}
@@ -80,9 +80,9 @@ export function AIEyes() {
                   ).y}px))`,
                 }}
               >
-                <div className="w-full h-full bg-black rounded-full border border-jarvis-red shadow-lg shadow-jarvis-red">
+                <div className="w-full h-full bg-black rounded-full border border-blue-400 shadow-lg shadow-cyan-400">
                   {/* Pupil highlight */}
-                  <div className="absolute top-1 right-1 w-2 h-2 bg-jarvis-orange rounded-full opacity-80" />
+                  <div className="absolute top-1 right-1 w-2 h-2 bg-cyan-300 rounded-full opacity-90" />
                 </div>
               </div>
             </div>
@@ -90,24 +90,24 @@ export function AIEyes() {
 
           {/* Scanning lines effect */}
           <div className="absolute inset-0 overflow-hidden rounded-full opacity-30">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-jarvis-orange/40 to-transparent h-5 animate-scan" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/50 to-transparent h-5 animate-scan" />
           </div>
         </div>
 
         {/* Right Eye */}
         <div className="relative w-20 h-20">
           {/* Eye outer glow */}
-          <div className="absolute inset-0 bg-jarvis-red/20 rounded-full blur-2xl animate-pulse" />
+          <div className="absolute inset-0 bg-blue-400/30 rounded-full blur-2xl animate-pulse" />
 
           {/* Eye socket */}
-          <div className="absolute inset-0 bg-gradient-to-br from-jarvis-red/30 to-jarvis-orange/20 rounded-full border-2 border-jarvis-red/40 shadow-lg shadow-jarvis-red/50">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/40 to-cyan-400/30 rounded-full border-2 border-blue-400/50 shadow-lg shadow-blue-400/50">
             {/* Inner eye */}
-            <div className="absolute inset-4 bg-gradient-to-br from-black to-jarvis-bg-dark rounded-full border border-jarvis-orange/30">
+            <div className="absolute inset-4 bg-gradient-to-br from-black to-jarvis-bg-dark rounded-full border border-cyan-400/40">
               {/* Iris */}
-              <div className="absolute inset-3 bg-gradient-to-br from-jarvis-orange via-jarvis-red to-jarvis-gold rounded-full opacity-60 animate-glow-pulse">
+              <div className="absolute inset-3 bg-gradient-to-br from-cyan-300 via-blue-400 to-blue-500 rounded-full opacity-70 animate-glow-pulse">
                 {/* Iris details - rings */}
-                <div className="absolute inset-2 border border-jarvis-gold/30 rounded-full" />
-                <div className="absolute inset-4 border border-jarvis-orange/40 rounded-full" />
+                <div className="absolute inset-2 border border-cyan-300/40 rounded-full" />
+                <div className="absolute inset-4 border border-blue-300/50 rounded-full" />
               </div>
 
               {/* Pupil (moves with mouse) */}
@@ -131,9 +131,9 @@ export function AIEyes() {
                   ).y}px))`,
                 }}
               >
-                <div className="w-full h-full bg-black rounded-full border border-jarvis-red shadow-lg shadow-jarvis-red">
+                <div className="w-full h-full bg-black rounded-full border border-blue-400 shadow-lg shadow-cyan-400">
                   {/* Pupil highlight */}
-                  <div className="absolute top-1 right-1 w-2 h-2 bg-jarvis-orange rounded-full opacity-80" />
+                  <div className="absolute top-1 right-1 w-2 h-2 bg-cyan-300 rounded-full opacity-90" />
                 </div>
               </div>
             </div>
@@ -141,16 +141,16 @@ export function AIEyes() {
 
           {/* Scanning lines effect */}
           <div className="absolute inset-0 overflow-hidden rounded-full opacity-30">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-jarvis-orange/40 to-transparent h-5 animate-scan" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/50 to-transparent h-5 animate-scan" />
           </div>
         </div>
       </div>
 
       {/* Connecting light beam between eyes */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-0.5 bg-gradient-to-r from-transparent via-jarvis-red to-transparent opacity-40" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-50" />
 
       {/* Subtle outer glow around entire face area */}
-      <div className="absolute -inset-8 bg-gradient-radial from-jarvis-red/10 via-transparent to-transparent rounded-full blur-2xl" />
+      <div className="absolute -inset-8 bg-gradient-radial from-blue-400/15 via-transparent to-transparent rounded-full blur-2xl" />
     </div>
   );
 }
