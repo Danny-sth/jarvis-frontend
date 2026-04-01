@@ -1,24 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { api, type User } from '../../lib/api-client';
+import { api, type User, type UpdateUserRequest } from '../../lib/api-client';
 import { useToastStore } from '../../store/toastStore';
 import { Modal } from '../ui/Modal';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { Switch } from '../ui/Switch';
 import { Button } from '../ui/Button';
+import { USER_ROLES } from '../../lib/constants';
 
 interface EditUserModalProps {
   isOpen: boolean;
   onClose: () => void;
   user: User | null;
 }
-
-const ROLES = [
-  { value: 'public', label: 'Public' },
-  { value: 'admin', label: 'Admin' },
-  { value: 'root', label: 'Root' },
-];
 
 export function EditUserModal({ isOpen, onClose, user }: EditUserModalProps) {
   const [username, setUsername] = useState('');
@@ -42,13 +37,13 @@ export function EditUserModal({ isOpen, onClose, user }: EditUserModalProps) {
   }, [user]);
 
   const updateMutation = useMutation({
-    mutationFn: (data: any) => api.updateUser(user!.id, data),
+    mutationFn: (data: UpdateUserRequest) => api.updateUser(user!.id, data),
     onSuccess: () => {
       showToast({ type: 'success', message: 'User updated successfully!' });
       queryClient.invalidateQueries({ queryKey: ['users'] });
       handleClose();
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       showToast({
         type: 'error',
         message: error.message || 'Failed to update user',
@@ -87,7 +82,7 @@ export function EditUserModal({ isOpen, onClose, user }: EditUserModalProps) {
       return;
     }
 
-    const updates: any = {};
+    const updates: UpdateUserRequest = {};
 
     // Only include changed fields
     if (username.trim() !== user.username) {
@@ -145,7 +140,7 @@ export function EditUserModal({ isOpen, onClose, user }: EditUserModalProps) {
 
         <Select
           label="ROLE"
-          options={ROLES}
+          options={USER_ROLES.map(r => ({ value: r.value, label: r.label }))}
           value={role}
           onChange={(value) => setRole(value as string)}
         />

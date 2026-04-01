@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Save, Play } from 'lucide-react';
 import { api } from '../../lib/api-client';
@@ -7,8 +7,7 @@ import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { useAuthStore } from '../../store/auth';
-
-const AVAILABLE_CHECKS = ['gmail', 'calendar', 'tasks', 'system'];
+import { AVAILABLE_CHECKS } from '../../lib/constants';
 
 export default function HeartbeatConfig() {
   const { userId } = useAuthStore();
@@ -21,21 +20,22 @@ export default function HeartbeatConfig() {
     enabled: !!userId,
   });
 
-  const [formData, setFormData] = useState<IHeartbeatConfig>(
-    config || {
-      enabled: true,
-      interval_minutes: 60,
-      active_hours_start: 9,
-      active_hours_end: 22,
-      timezone: 'UTC',
-      checks: ['gmail', 'calendar'],
-      check_configs: {},
-    }
-  );
-
-  useState(() => {
-    if (config) setFormData(config);
+  const [formData, setFormData] = useState<IHeartbeatConfig>({
+    enabled: true,
+    interval_minutes: 60,
+    active_hours_start: 9,
+    active_hours_end: 22,
+    timezone: 'UTC',
+    checks: ['gmail', 'calendar'],
+    check_configs: {},
   });
+
+  // Sync form data with fetched config
+  useEffect(() => {
+    if (config) {
+      setFormData(config);
+    }
+  }, [config]);
 
   const updateMutation = useMutation({
     mutationFn: (data: IHeartbeatConfig) => api.updateHeartbeatConfig(data, userId || undefined),
@@ -173,15 +173,15 @@ export default function HeartbeatConfig() {
           <h3 className="text-lg font-display text-jarvis-cyan mb-4">ENABLED CHECKS</h3>
           <div className="space-y-3">
             {AVAILABLE_CHECKS.map((check) => (
-              <label key={check} className="flex items-center gap-3 cursor-pointer">
+              <label key={check.value} className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={formData.checks.includes(check)}
-                  onChange={() => toggleCheck(check)}
+                  checked={formData.checks.includes(check.value)}
+                  onChange={() => toggleCheck(check.value)}
                   className="w-5 h-5 bg-jarvis-bg-dark border border-jarvis-cyan/30 rounded accent-jarvis-cyan"
                 />
-                <span className="text-jarvis-text-primary font-body font-medium uppercase">
-                  {check}
+                <span className="text-jarvis-text-primary font-body font-medium">
+                  {check.label}
                 </span>
               </label>
             ))}

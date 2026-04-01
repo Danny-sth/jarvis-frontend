@@ -1,9 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { Activity, ListTodo, CheckCircle2, XCircle, Zap, DollarSign, Database } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { api } from '../../lib/api-client';
 import { Card } from '../../components/ui/Card';
 import { EventFeed } from '../../components/monitoring/EventFeed';
 import { LLMCostChart } from '../../components/monitoring/LLMCostChart';
+import { AnimatedProgress, AnimatedCircularProgress } from '../../components/ui/AnimatedProgress';
 
 export default function Dashboard() {
 
@@ -89,56 +91,109 @@ export default function Dashboard() {
       </div>
 
       {/* System Info */}
+      {/* System Health - Modern Animated Design */}
       {systemInfo && (
-        <Card>
-          <h2 className="text-xl font-display text-jarvis-cyan mb-4">SYSTEM HEALTH</h2>
-          <div className="space-y-3">
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm font-body text-jarvis-text-secondary">CPU</span>
-                <span className="text-sm font-mono text-jarvis-text-primary">
-                  {systemInfo.cpu_percent.toFixed(1)}%
-                </span>
-              </div>
-              <div className="w-full bg-jarvis-bg-dark rounded-full h-2">
-                <div
-                  className="bg-jarvis-cyan h-2 rounded-full transition-all"
-                  style={{ width: `${systemInfo.cpu_percent}%` }}
-                />
-              </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card>
+            <div className="flex items-center gap-3 mb-6">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                className="p-2 rounded-lg bg-gradient-to-br from-cyan-500/20 to-purple-500/20"
+              >
+                <Activity className="w-6 h-6 text-jarvis-cyan" />
+              </motion.div>
+              <h2 className="text-xl font-display text-jarvis-cyan">SYSTEM HEALTH</h2>
             </div>
 
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm font-body text-jarvis-text-secondary">MEMORY</span>
-                <span className="text-sm font-mono text-jarvis-text-primary">
-                  {systemInfo.memory_percent.toFixed(1)}%
-                </span>
-              </div>
-              <div className="w-full bg-jarvis-bg-dark rounded-full h-2">
-                <div
-                  className="bg-jarvis-purple h-2 rounded-full transition-all"
-                  style={{ width: `${systemInfo.memory_percent}%` }}
+            {/* Circular Progress Grid for Desktop */}
+            <div className="hidden md:grid md:grid-cols-3 gap-8 mb-6">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.1, type: 'spring' }}
+                className="flex flex-col items-center"
+              >
+                <AnimatedCircularProgress
+                  value={systemInfo.cpu_percent}
+                  label="CPU"
+                  color="cyan"
+                  size={100}
                 />
-              </div>
+              </motion.div>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: 'spring' }}
+                className="flex flex-col items-center"
+              >
+                <AnimatedCircularProgress
+                  value={systemInfo.memory_percent}
+                  label="MEMORY"
+                  color="purple"
+                  size={100}
+                />
+              </motion.div>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.3, type: 'spring' }}
+                className="flex flex-col items-center"
+              >
+                <AnimatedCircularProgress
+                  value={systemInfo.disk_percent}
+                  label="DISK"
+                  color="orange"
+                  size={100}
+                />
+              </motion.div>
             </div>
 
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm font-body text-jarvis-text-secondary">DISK</span>
-                <span className="text-sm font-mono text-jarvis-text-primary">
-                  {systemInfo.disk_percent.toFixed(1)}%
-                </span>
-              </div>
-              <div className="w-full bg-jarvis-bg-dark rounded-full h-2">
-                <div
-                  className="bg-jarvis-orange h-2 rounded-full transition-all"
-                  style={{ width: `${systemInfo.disk_percent}%` }}
+            {/* Linear Progress for Mobile */}
+            <div className="md:hidden space-y-4">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <AnimatedProgress
+                  value={systemInfo.cpu_percent}
+                  label="CPU"
+                  color="cyan"
+                  size="md"
                 />
-              </div>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <AnimatedProgress
+                  value={systemInfo.memory_percent}
+                  label="MEMORY"
+                  color="purple"
+                  size="md"
+                />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <AnimatedProgress
+                  value={systemInfo.disk_percent}
+                  label="DISK"
+                  color="orange"
+                  size="md"
+                />
+              </motion.div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </motion.div>
       )}
 
       {/* Version Info */}

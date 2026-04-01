@@ -1,23 +1,18 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../../lib/api-client';
+import { api, type CreateUserRequest } from '../../lib/api-client';
 import { useToastStore } from '../../store/toastStore';
 import { Modal } from '../ui/Modal';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { Switch } from '../ui/Switch';
 import { Button } from '../ui/Button';
+import { USER_ROLES } from '../../lib/constants';
 
 interface CreateUserModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-const ROLES = [
-  { value: 'public', label: 'Public' },
-  { value: 'admin', label: 'Admin' },
-  { value: 'root', label: 'Root' },
-];
 
 export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
   const [username, setUsername] = useState('');
@@ -30,13 +25,13 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
   const queryClient = useQueryClient();
 
   const createMutation = useMutation({
-    mutationFn: (data: any) => api.createUser(data),
+    mutationFn: (data: CreateUserRequest) => api.createUser(data),
     onSuccess: () => {
       showToast({ type: 'success', message: 'User created successfully!' });
       queryClient.invalidateQueries({ queryKey: ['users'] });
       handleClose();
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       showToast({
         type: 'error',
         message: error.message || 'Failed to create user',
@@ -107,7 +102,7 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
 
         <Select
           label="ROLE"
-          options={ROLES}
+          options={USER_ROLES.map(r => ({ value: r.value, label: r.label }))}
           value={role}
           onChange={(value) => setRole(value as string)}
         />

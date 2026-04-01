@@ -4,6 +4,55 @@
 // TYPES
 // ============================================================================
 
+/** Generic JSON-serializable value */
+export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+
+/** Generic record type for dynamic configs */
+export type ConfigRecord = Record<string, JsonValue>;
+
+/** Workflow step definition */
+export interface WorkflowStep {
+  id: string;
+  action_type: string;
+  params: ConfigRecord;
+  next_step_id?: string;
+  on_error?: string;
+}
+
+/** Workflow execution result */
+export interface WorkflowResult {
+  success: boolean;
+  output?: ConfigRecord;
+  steps_executed?: number;
+  error?: string;
+}
+
+/** Task execution result */
+export interface TaskResult {
+  success: boolean;
+  output?: ConfigRecord;
+  duration_ms?: number;
+  error?: string;
+}
+
+/** Subtask payload for spawning child tasks */
+export interface SubtaskPayload {
+  name: string;
+  params: ConfigRecord;
+  priority?: number;
+}
+
+/** Activity event data structure */
+export interface ActivityEventData {
+  endpoint?: string;
+  method?: string;
+  status_code?: number;
+  duration_ms?: number;
+  tool_name?: string;
+  caller?: string;
+  [key: string]: JsonValue | undefined;
+}
+
 export interface QueueTask {
   task_id: string;
   status: 'pending' | 'queued' | 'running' | 'completed' | 'failed';
@@ -11,7 +60,7 @@ export interface QueueTask {
   user_id: string;
   created_at: string;
   updated_at?: string;
-  result?: any;
+  result?: TaskResult;
   error?: string;
 }
 
@@ -31,12 +80,12 @@ export interface HeartbeatConfig {
   active_hours_end: number;
   timezone: string;
   checks: string[];
-  check_configs: Record<string, any>;
+  check_configs: ConfigRecord;
 }
 
 export interface HeartbeatResult {
   timestamp: string;
-  checks: Record<string, any>;
+  checks: Record<string, { status: string; message?: string; data?: ConfigRecord }>;
   summary: string;
 }
 
@@ -45,7 +94,7 @@ export interface Workflow {
   user_id: string;
   name: string;
   description?: string;
-  steps: any[];
+  steps: WorkflowStep[];
   created_at: string;
   updated_at?: string;
 }
@@ -56,7 +105,7 @@ export interface WorkflowRun {
   status: 'running' | 'completed' | 'failed' | 'cancelled';
   started_at: string;
   completed_at?: string;
-  result?: any;
+  result?: WorkflowResult;
   error?: string;
 }
 
@@ -66,7 +115,7 @@ export interface RecurringTask {
   name: string;
   cron_expression: string;
   task_type: string;
-  task_params: Record<string, any>;
+  task_params: ConfigRecord;
   timezone: string;
   enabled: boolean;
   created_at: string;
@@ -81,6 +130,35 @@ export interface MemoryResult {
   distance?: number;
 }
 
+export interface ObsidianSearchResult {
+  path: string;
+  title: string;
+  content: string;
+  score: number;
+}
+
+export interface Learning {
+  id: string;
+  content: string;
+  source: string;
+  importance: number;
+  created_at: string;
+}
+
+export interface ReflectionResult {
+  summary: string;
+  insights: string[];
+  learnings_count: number;
+}
+
+export interface SubtaskAggregateResult {
+  parent_id: string;
+  total: number;
+  completed: number;
+  failed: number;
+  results: TaskResult[];
+}
+
 export interface SystemInfo {
   version: string;
   uptime: number;
@@ -91,7 +169,7 @@ export interface SystemInfo {
 
 export interface ActivityEvent {
   type: string;
-  data: any;
+  data: ActivityEventData;
   timestamp: string;
 }
 
@@ -113,6 +191,22 @@ export interface User {
   telegram_id: number | null;
   is_active: boolean;
   created_at: string;
+}
+
+export interface CreateUserRequest {
+  username: string;
+  password: string;
+  role: string;
+  telegram_id?: number | null;
+  is_active: boolean;
+}
+
+export interface UpdateUserRequest {
+  username?: string;
+  password?: string;
+  role?: string;
+  telegram_id?: number | null;
+  is_active?: boolean;
 }
 
 export interface DocFile {
@@ -154,7 +248,7 @@ export interface MonitoringEvent {
   user_id?: string;
   request_id?: string;
   error_message?: string;
-  metadata?: Record<string, any>;
+  metadata?: ConfigRecord;
 }
 
 export interface LLMUsageSummary {
@@ -391,8 +485,8 @@ class JarvisAPI {
     });
   }
 
-  async searchObsidian(query: string): Promise<any[]> {
-    return this.request<any[]>(`/obsidian/search?query=${encodeURIComponent(query)}`);
+  async searchObsidian(query: string): Promise<ObsidianSearchResult[]> {
+    return this.request<ObsidianSearchResult[]>(`/obsidian/search?query=${encodeURIComponent(query)}`);
   }
 
   async getObsidianLinks(path: string): Promise<string[]> {
@@ -464,7 +558,7 @@ class JarvisAPI {
     });
   }
 
-  async runWorkflow(id: string, variables?: Record<string, any>): Promise<WorkflowRun> {
+  async runWorkflow(id: string, variables?: ConfigRecord): Promise<WorkflowRun> {
     return this.request<WorkflowRun>(`/workflows/${id}/run`, {
       method: 'POST',
       body: JSON.stringify({ variables }),
@@ -489,14 +583,14 @@ class JarvisAPI {
   // REFLECTION (2 endpoints)
   // ============================================================================
 
-  async getLearnings(limit = 20, userId?: string): Promise<any[]> {
+  async getLearnings(limit = 20, userId?: string): Promise<Learning[]> {
     const uid = userId || this.getCurrentUserId();
-    return this.request<any[]>(`/reflection/learnings?user_id=${uid}&limit=${limit}`);
+    return this.request<Learning[]>(`/reflection/learnings?user_id=${uid}&limit=${limit}`);
   }
 
-  async runReflection(userId?: string): Promise<any> {
+  async runReflection(userId?: string): Promise<ReflectionResult> {
     const uid = userId || this.getCurrentUserId();
-    return this.request<any>(`/reflection/run?user_id=${uid}`, {
+    return this.request<ReflectionResult>(`/reflection/run?user_id=${uid}`, {
       method: 'POST',
     });
   }
@@ -545,7 +639,7 @@ class JarvisAPI {
   // SUBTASKS (5 endpoints)
   // ============================================================================
 
-  async spawnSubtask(parentId: string, task: any): Promise<QueueTask> {
+  async spawnSubtask(parentId: string, task: SubtaskPayload): Promise<QueueTask> {
     return this.request<QueueTask>('/subtasks/spawn', {
       method: 'POST',
       body: JSON.stringify({ parent_id: parentId, ...task }),
@@ -556,12 +650,12 @@ class JarvisAPI {
     return this.request<QueueTask[]>(`/subtasks/${parentId}`);
   }
 
-  async aggregateSubtaskResults(parentId: string): Promise<any> {
-    return this.request<any>(`/subtasks/${parentId}/aggregate`);
+  async aggregateSubtaskResults(parentId: string): Promise<SubtaskAggregateResult> {
+    return this.request<SubtaskAggregateResult>(`/subtasks/${parentId}/aggregate`);
   }
 
-  async waitForSubtasks(parentId: string, timeout = 300): Promise<any> {
-    return this.request<any>(`/subtasks/${parentId}/wait?timeout=${timeout}`);
+  async waitForSubtasks(parentId: string, timeout = 300): Promise<SubtaskAggregateResult> {
+    return this.request<SubtaskAggregateResult>(`/subtasks/${parentId}/wait?timeout=${timeout}`);
   }
 
   async cancelAllSubtasks(parentId: string): Promise<void> {
