@@ -58,9 +58,9 @@ export default function SystemHealth() {
                     {systemInfo.cpu_percent.toFixed(1)}%
                   </span>
                 </div>
-                <div className="w-full bg-[#2a2a2a] border-2 border-cyan-400/50 rounded-full h-4 shadow-inner">
+                <div className="w-full h-8 rounded-full bg-gray-700 border-4 border-cyan-400 overflow-hidden">
                   <div
-                    className="bg-gradient-to-r from-cyan-400 to-cyan-300 h-full rounded-full transition-all duration-500 shadow-lg shadow-cyan-400/60"
+                    className="h-full bg-gradient-to-r from-cyan-400 to-cyan-300 transition-all duration-300"
                     style={{ width: `${systemInfo.cpu_percent}%` }}
                   />
                 </div>
@@ -79,9 +79,9 @@ export default function SystemHealth() {
                     {systemInfo.memory_percent.toFixed(1)}%
                   </span>
                 </div>
-                <div className="w-full bg-[#2a2a2a] border-2 border-blue-400/50 rounded-full h-4 shadow-inner">
+                <div className="w-full h-8 rounded-full bg-gray-700 border-4 border-blue-400 overflow-hidden">
                   <div
-                    className="bg-gradient-to-r from-blue-400 to-blue-500 h-full rounded-full transition-all duration-500 shadow-lg shadow-blue-400/60"
+                    className="h-full bg-gradient-to-r from-blue-400 to-blue-500 transition-all duration-300"
                     style={{ width: `${systemInfo.memory_percent}%` }}
                   />
                 </div>
@@ -100,9 +100,9 @@ export default function SystemHealth() {
                     {systemInfo.disk_percent.toFixed(1)}%
                   </span>
                 </div>
-                <div className="w-full bg-[#2a2a2a] border-2 border-jarvis-orange/50 rounded-full h-4 shadow-inner">
+                <div className="w-full h-8 rounded-full bg-gray-700 border-4 border-jarvis-orange overflow-hidden">
                   <div
-                    className="bg-gradient-to-r from-jarvis-orange to-jarvis-gold h-full rounded-full transition-all duration-500 shadow-lg shadow-jarvis-orange/60"
+                    className="h-full bg-gradient-to-r from-jarvis-orange to-jarvis-gold transition-all duration-300"
                     style={{ width: `${systemInfo.disk_percent}%` }}
                   />
                 </div>
