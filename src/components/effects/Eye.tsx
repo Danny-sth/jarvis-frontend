@@ -11,12 +11,12 @@ interface EyeProps {
 export function Eye({ className = '' }: EyeProps) {
   return (
     <div className={`relative ${className}`}>
-      {/* Outer glow - bright white/cyan */}
+      {/* Outer glow - bright blue */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse 100% 80% at center, rgba(255, 255, 255, 0.9) 0%, rgba(6, 182, 212, 0.6) 40%, transparent 70%)',
+            'radial-gradient(ellipse 100% 80% at center, rgba(96, 165, 250, 0.9) 0%, rgba(59, 130, 246, 0.6) 40%, transparent 70%)',
           filter: 'blur(20px)',
         }}
       />
@@ -28,13 +28,13 @@ export function Eye({ className = '' }: EyeProps) {
         style={{ filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.8))' }}
       >
         <defs>
-          {/* Bright white-cyan gradient */}
+          {/* Bright blue gradient - Iron Man style */}
           <linearGradient id="eyeGlow" x1="0%" y1="50%" x2="100%" y2="50%">
-            <stop offset="0%" stopColor="rgba(100, 200, 255, 0.8)" />
-            <stop offset="20%" stopColor="rgba(255, 255, 255, 1)" />
-            <stop offset="50%" stopColor="rgba(255, 255, 255, 1)" />
-            <stop offset="80%" stopColor="rgba(255, 255, 255, 1)" />
-            <stop offset="100%" stopColor="rgba(100, 200, 255, 0.8)" />
+            <stop offset="0%" stopColor="rgba(59, 130, 246, 0.7)" />
+            <stop offset="20%" stopColor="rgba(96, 165, 250, 1)" />
+            <stop offset="50%" stopColor="rgba(147, 197, 253, 1)" />
+            <stop offset="80%" stopColor="rgba(96, 165, 250, 1)" />
+            <stop offset="100%" stopColor="rgba(59, 130, 246, 0.7)" />
           </linearGradient>
         </defs>
 
@@ -46,21 +46,21 @@ export function Eye({ className = '' }: EyeProps) {
         />
       </svg>
 
-      {/* Inner bright core */}
+      {/* Inner bright core - blue */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.9) 20%, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0.9) 80%, transparent 100%)',
+            'linear-gradient(90deg, transparent 0%, rgba(96, 165, 250, 0.9) 20%, rgba(147, 197, 253, 1) 50%, rgba(96, 165, 250, 0.9) 80%, transparent 100%)',
           clipPath: 'polygon(8% 50%, 25% 20%, 75% 20%, 92% 50%, 75% 80%, 25% 80%)',
         }}
       />
 
-      {/* Scanning line animation */}
+      {/* Scanning line animation - blue */}
       <motion.div
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(to bottom, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%)',
+          background: 'linear-gradient(to bottom, transparent 0%, rgba(147, 197, 253, 0.7) 50%, transparent 100%)',
           clipPath: 'polygon(8% 50%, 25% 20%, 75% 20%, 92% 50%, 75% 80%, 25% 80%)',
         }}
         animate={{
@@ -73,12 +73,12 @@ export function Eye({ className = '' }: EyeProps) {
         }}
       />
 
-      {/* Pulsing glow effect */}
+      {/* Pulsing glow effect - blue */}
       <motion.div
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse 100% 70% at center, rgba(255, 255, 255, 0.4) 0%, transparent 60%)',
+            'radial-gradient(ellipse 100% 70% at center, rgba(96, 165, 250, 0.5) 0%, transparent 60%)',
         }}
         animate={{
           opacity: [0.6, 1, 0.6],

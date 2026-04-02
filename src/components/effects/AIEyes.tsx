@@ -131,17 +131,17 @@ export function AIEyes() {
 
       {/* Eyes - Iron Man style trapezoidal glowing slits */}
       <div className="relative pt-20">
-        <div className="flex items-center justify-center gap-40">
-          <Eye className="w-32 h-8" />
-          <Eye className="w-32 h-8" />
+        <div className="flex items-center justify-center gap-48">
+          <Eye className="w-44 h-11" />
+          <Eye className="w-44 h-11" />
         </div>
 
-        {/* Connecting energy beam - cyan/blue */}
+        {/* Connecting energy beam - blue */}
         <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-[2px] -z-10"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-[2px] -z-10"
           style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 20%, rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0.6) 80%, transparent 100%)',
-            boxShadow: '0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(6, 182, 212, 0.6)',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(96, 165, 250, 0.6) 20%, rgba(147, 197, 253, 0.9) 50%, rgba(96, 165, 250, 0.6) 80%, transparent 100%)',
+            boxShadow: '0 0 12px rgba(96, 165, 250, 0.8), 0 0 24px rgba(59, 130, 246, 0.6)',
           }}
           animate={{
             opacity: [0.6, 0.9, 0.6],
