@@ -41,7 +41,7 @@ export default function UserManagement() {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       setDeleteModal({ isOpen: false, user: null });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       showToast({
         type: 'error',
         message: error.message || 'Failed to delete user',

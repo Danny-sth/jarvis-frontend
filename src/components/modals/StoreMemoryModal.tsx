@@ -52,7 +52,7 @@ export function StoreMemoryModal({ isOpen, onClose }: StoreMemoryModalProps) {
 
     const errors = validate(values);
     if (errors.length > 0) {
-      submit(null as any, errors);
+      submit(null, errors);
       return;
     }
 

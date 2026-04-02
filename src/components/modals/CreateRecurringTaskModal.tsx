@@ -11,6 +11,7 @@ import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { Switch } from '../ui/Switch';
 import { CronPreview } from '../CronPreview';
+import type { ConfigRecord } from '../../lib/api/types';
 
 interface CreateRecurringTaskModalProps {
   isOpen: boolean;
@@ -70,7 +71,18 @@ export function CreateRecurringTaskModal({ isOpen, onClose }: CreateRecurringTas
     cronExpression: { required: true, minLength: 1 },
   });
 
-  const { submit, isSubmitting } = useFormSubmission<unknown, any>({
+  const { submit, isSubmitting } = useFormSubmission<
+    unknown,
+    {
+      user_id: string;
+      name: string;
+      cron_expression: string;
+      task_type: string;
+      task_params: ConfigRecord;
+      timezone: string;
+      enabled: boolean;
+    }
+  >({
     mutationFn: (data) => recurringTasksAPI.create(data),
     onSuccess: () => {
       reset();
@@ -98,7 +110,7 @@ export function CreateRecurringTaskModal({ isOpen, onClose }: CreateRecurringTas
 
     const errors = validate(values);
     if (errors.length > 0) {
-      submit(null as any, errors);
+      submit(null, errors);
       return;
     }
 
@@ -107,9 +119,10 @@ export function CreateRecurringTaskModal({ isOpen, onClose }: CreateRecurringTas
     try {
       taskParams = JSON.parse(values.taskParamsJson);
       setJsonError('');
-    } catch (err: any) {
-      setJsonError(err.message);
-      showToast({ type: 'error', message: 'Invalid JSON: ' + err.message });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Invalid JSON format';
+      setJsonError(message);
+      showToast({ type: 'error', message: 'Invalid JSON: ' + message });
       return;
     }
 

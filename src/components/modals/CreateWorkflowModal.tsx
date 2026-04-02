@@ -8,6 +8,7 @@ import { useFormSubmission } from '../../hooks/forms/useFormSubmission';
 import { FormModal } from '../forms/FormModal';
 import { Input } from '../ui/Input';
 import { Textarea } from '../ui/Textarea';
+import type { WorkflowStep } from '../../lib/api/types';
 import { useToast } from '../../hooks/useToast';
 
 interface CreateWorkflowModalProps {
@@ -50,7 +51,7 @@ export function CreateWorkflowModal({ isOpen, onClose }: CreateWorkflowModalProp
 
   const { submit, isSubmitting } = useFormSubmission<
     unknown,
-    { name: string; description?: string; steps: any[] }
+    { name: string; description?: string; steps: WorkflowStep[] }
   >({
     mutationFn: (data) =>
       workflowAPI.createWorkflow({
@@ -80,7 +81,7 @@ export function CreateWorkflowModal({ isOpen, onClose }: CreateWorkflowModalProp
 
     const errors = validate(values);
     if (errors.length > 0) {
-      submit(null as any, errors);
+      submit(null, errors);
       return;
     }
 
@@ -92,9 +93,10 @@ export function CreateWorkflowModal({ isOpen, onClose }: CreateWorkflowModalProp
         throw new Error('Steps must be an array');
       }
       setJsonError('');
-    } catch (err: any) {
-      setJsonError(err.message);
-      showToast({ type: 'error', message: 'Invalid JSON: ' + err.message });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Invalid JSON format';
+      setJsonError(message);
+      showToast({ type: 'error', message: 'Invalid JSON: ' + message });
       return;
     }
 

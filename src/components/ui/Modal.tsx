@@ -71,7 +71,8 @@ export function Modal({
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
 
-    const handleTab = (e: KeyboardEvent) => {
+    const handleTab = (e: Event) => {
+      if (!(e instanceof KeyboardEvent)) return;
       if (e.key !== 'Tab') return;
 
       if (e.shiftKey) {
@@ -89,8 +90,8 @@ export function Modal({
       }
     };
 
-    modal.addEventListener('keydown', handleTab as any);
-    return () => modal.removeEventListener('keydown', handleTab as any);
+    modal.addEventListener('keydown', handleTab);
+    return () => modal.removeEventListener('keydown', handleTab);
   }, [isOpen]);
 
   // Click outside handler

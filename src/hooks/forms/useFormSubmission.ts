@@ -54,7 +54,7 @@ export function useFormSubmission<TData = unknown, TVariables = unknown>(
   } as UseMutationOptions<TData, Error, TVariables>);
 
   const submit = useCallback(
-    (variables: TVariables, errors?: ValidationError[]) => {
+    (variables: TVariables | null, errors?: ValidationError[]) => {
       // Set validation errors if provided
       if (errors && errors.length > 0) {
         setValidationErrors(errors);
@@ -62,6 +62,11 @@ export function useFormSubmission<TData = unknown, TVariables = unknown>(
           type: 'error',
           message: errors[0].message,
         });
+        return;
+      }
+
+      // Cannot submit without variables
+      if (variables === null) {
         return;
       }
 
