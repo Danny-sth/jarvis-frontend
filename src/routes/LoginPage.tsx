@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { logger } from '../lib/logger';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -24,7 +25,7 @@ export default function LoginPage() {
       navigate('/admin', { replace: true });
     } catch (err) {
       setError('Invalid username or password');
-      console.error('Login error:', err);
+      logger.error('Login error:', err);
     } finally {
       setLoading(false);
     }

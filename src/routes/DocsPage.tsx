@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { logger } from '../lib/logger';
 
 export default function DocsPage() {
   const { page = 'jarvis' } = useParams();
@@ -22,7 +23,7 @@ export default function DocsPage() {
         const text = await response.text();
         setContent(text);
       } catch (err) {
-        console.error('Error loading doc:', err);
+        logger.error('Error loading doc:', err);
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
         setLoading(false);

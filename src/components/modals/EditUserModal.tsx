@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import type { User, UpdateUserRequest } from '../../lib/api';
-import { useUserAPI } from '../../contexts/APIContext';
+import { useUserAPI } from '../../hooks/useAPI';
 import { useFormState } from '../../hooks/forms/useFormState';
 import { useFormValidation } from '../../hooks/forms/useFormValidation';
 import { useFormSubmission } from '../../hooks/forms/useFormSubmission';

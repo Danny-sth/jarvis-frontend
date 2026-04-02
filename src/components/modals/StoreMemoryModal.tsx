@@ -1,4 +1,4 @@
-import { useCortexAPI } from '../../contexts/APIContext';
+import { useCortexAPI } from '../../hooks/useAPI';
 import { useAuth } from '../../hooks/useAuth';
 import { useFormState } from '../../hooks/forms/useFormState';
 import { useFormValidation } from '../../hooks/forms/useFormValidation';

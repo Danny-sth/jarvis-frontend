@@ -2,6 +2,7 @@
 import type { IWebSocketConnection } from './IWebSocketConnection';
 import type { SystemMetrics } from '../../store/systemMetricsStore';
 import { API_CONFIG, UI_CONFIG } from '../config';
+import { logger } from '../logger';
 
 export class SystemMetricsWSClient implements IWebSocketConnection<SystemMetrics> {
   private ws: WebSocket | null = null;
@@ -31,7 +32,7 @@ export class SystemMetricsWSClient implements IWebSocketConnection<SystemMetrics
     this.ws = new WebSocket(this.wsUrl);
 
     this.ws.onopen = () => {
-      console.log('[SystemMetrics] WebSocket connected');
+      logger.debug('[SystemMetrics] WebSocket connected');
       this.notifyConnectionChange(true);
     };
 
@@ -43,17 +44,17 @@ export class SystemMetricsWSClient implements IWebSocketConnection<SystemMetrics
           this.notifyConnectionChange(true);
         }
       } catch (error) {
-        console.error('[SystemMetrics] Failed to parse message:', error);
+        logger.error('[SystemMetrics] Failed to parse message:', error);
       }
     };
 
     this.ws.onerror = (error) => {
-      console.error('[SystemMetrics] WebSocket error:', error);
+      logger.error('[SystemMetrics] WebSocket error:', error);
       this.notifyConnectionChange(false);
     };
 
     this.ws.onclose = () => {
-      console.log('[SystemMetrics] WebSocket disconnected');
+      logger.debug('[SystemMetrics] WebSocket disconnected');
       this.ws = null;
       this.notifyConnectionChange(false);
 

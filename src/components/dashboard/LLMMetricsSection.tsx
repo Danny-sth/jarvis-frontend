@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Zap, DollarSign, Database } from 'lucide-react';
-import { useMonitoringAPI } from '../../contexts/APIContext';
+import { useMonitoringAPI } from '../../hooks/useAPI';
 import { Card } from '../ui/Card';
 
 export function LLMMetricsSection() {

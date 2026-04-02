@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from 'recharts';
-import { useMonitoringAPI } from '../../contexts/APIContext';
+import { useMonitoringAPI } from '../../hooks/useAPI';
 import { Card } from '../ui/Card';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Activity, ListTodo, CheckCircle2, XCircle } from 'lucide-react';
-import { useQueueAPI } from '../../contexts/APIContext';
+import { useQueueAPI } from '../../hooks/useAPI';
 import { Card } from '../ui/Card';
 
 export function QueueStatsCard() {

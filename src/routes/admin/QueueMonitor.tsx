@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Trash2, RefreshCw } from 'lucide-react';
-import { useQueueAPI } from '../../contexts/APIContext';
+import { useQueueAPI } from '../../hooks/useAPI';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { formatDate, formatRelativeTime } from '../../lib/utils';

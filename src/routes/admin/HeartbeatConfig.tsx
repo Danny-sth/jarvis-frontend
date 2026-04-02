@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Save, Play } from 'lucide-react';
-import { useHeartbeatAPI } from '../../contexts/APIContext';
+import { useHeartbeatAPI } from '../../hooks/useAPI';
 import type { HeartbeatConfig as IHeartbeatConfig } from '../../lib/api';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -31,10 +31,15 @@ export default function HeartbeatConfig() {
     check_configs: {},
   });
 
-  // Sync form data with fetched config
+  // ✅ Используем ref для отслеживания что config применен только один раз
+  // Это предотвращает каскадные ре-рендеры от повторной синхронизации
+  const configApplied = useRef(false);
+
   useEffect(() => {
-    if (config) {
+    if (config && !configApplied.current) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData(config);
+      configApplied.current = true;
     }
   }, [config]);
 

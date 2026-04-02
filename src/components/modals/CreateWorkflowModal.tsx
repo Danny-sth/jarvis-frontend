@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import Editor from '@monaco-editor/react';
-import { useWorkflowAPI } from '../../contexts/APIContext';
+import { useState, lazy, Suspense } from 'react';
+const Editor = lazy(() => import('@monaco-editor/react'));
+import { useWorkflowAPI } from '../../hooks/useAPI';
 import { useAuth } from '../../hooks/useAuth';
 import { useFormState } from '../../hooks/forms/useFormState';
 import { useFormValidation } from '../../hooks/forms/useFormValidation';
@@ -140,21 +140,29 @@ export function CreateWorkflowModal({ isOpen, onClose }: CreateWorkflowModalProp
           STEPS (JSON)
         </label>
         <div className="border border-jarvis-cyan/20 rounded-lg overflow-hidden">
-          <Editor
-            height="400px"
-            defaultLanguage="json"
-            value={values.stepsJson}
-            onChange={(value) => setValue('stepsJson', value || '')}
-            theme="vs-dark"
-            options={{
-              minimap: { enabled: false },
-              fontSize: 14,
-              lineNumbers: 'on',
-              scrollBeyondLastLine: false,
-              automaticLayout: true,
-              tabSize: 2,
-            }}
-          />
+          <Suspense
+            fallback={
+              <div className="h-[400px] flex items-center justify-center bg-jarvis-bg-dark text-jarvis-text-muted">
+                Loading editor...
+              </div>
+            }
+          >
+            <Editor
+              height="400px"
+              defaultLanguage="json"
+              value={values.stepsJson}
+              onChange={(value) => setValue('stepsJson', value || '')}
+              theme="vs-dark"
+              options={{
+                minimap: { enabled: false },
+                fontSize: 14,
+                lineNumbers: 'on',
+                scrollBeyondLastLine: false,
+                automaticLayout: true,
+                tabSize: 2,
+              }}
+            />
+          </Suspense>
         </div>
         {jsonError && <p className="mt-2 text-sm text-jarvis-orange">{jsonError}</p>}
         <p className="mt-2 text-xs text-jarvis-text-muted">

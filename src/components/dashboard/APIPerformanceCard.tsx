@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useMonitoringAPI } from '../../contexts/APIContext';
+import { useMonitoringAPI } from '../../hooks/useAPI';
 import { Card } from '../ui/Card';
 
 export function APIPerformanceCard() {

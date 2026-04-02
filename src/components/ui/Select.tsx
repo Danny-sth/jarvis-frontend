@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -33,7 +33,7 @@ export function Select({
   const selectRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const selectedValues = Array.isArray(value) ? value : [value];
+  const selectedValues = useMemo(() => (Array.isArray(value) ? value : [value]), [value]);
 
   // Get display text
   const getDisplayText = () => {
@@ -47,17 +47,20 @@ export function Select({
   };
 
   // Handle option click
-  const handleSelect = (optionValue: string) => {
-    if (multiple) {
-      const newValues = selectedValues.includes(optionValue)
-        ? selectedValues.filter((v) => v !== optionValue)
-        : [...selectedValues, optionValue];
-      onChange(newValues);
-    } else {
-      onChange(optionValue);
-      setIsOpen(false);
-    }
-  };
+  const handleSelect = useCallback(
+    (optionValue: string) => {
+      if (multiple) {
+        const newValues = selectedValues.includes(optionValue)
+          ? selectedValues.filter((v) => v !== optionValue)
+          : [...selectedValues, optionValue];
+        onChange(newValues);
+      } else {
+        onChange(optionValue);
+        setIsOpen(false);
+      }
+    },
+    [multiple, selectedValues, onChange]
+  );
 
   // Keyboard navigation
   useEffect(() => {
@@ -86,7 +89,7 @@ export function Select({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, highlightedIndex, options]);
+  }, [isOpen, highlightedIndex, options, handleSelect]);
 
   // Scroll highlighted option into view
   useEffect(() => {

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { AuthService } from '../lib/auth/AuthService';
 import { apiFactory } from '../lib/api/base/APIFactory';
+import { logger } from '../lib/logger';
 
 // Initialize AuthService with dependencies
 const authService = new AuthService(
@@ -38,7 +39,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         role: authData.role,
       });
     } catch (error) {
-      console.error('Login failed:', error);
+      logger.error('Login failed:', error);
       throw error;
     }
   },

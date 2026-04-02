@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Clock } from 'lucide-react';
-import { useRecurringTasksAPI } from '../contexts/APIContext';
+import { useRecurringTasksAPI } from '../hooks/useAPI';
 import { Skeleton } from './ui/Skeleton';
 
 interface CronPreviewProps {

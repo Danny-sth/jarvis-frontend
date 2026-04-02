@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import Editor from '@monaco-editor/react';
-import { useRecurringTasksAPI } from '../../contexts/APIContext';
+import { useState, lazy, Suspense } from 'react';
+const Editor = lazy(() => import('@monaco-editor/react'));
+import { useRecurringTasksAPI } from '../../hooks/useAPI';
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
 import { useFormState } from '../../hooks/forms/useFormState';
@@ -43,7 +43,7 @@ const TASK_TYPES = [
   { value: 'workflow', label: 'Run Workflow' },
 ];
 
-const DEFAULT_PARAMS: Record<string, any> = {
+const DEFAULT_PARAMS: Record<string, ConfigRecord> = {
   message: { text: 'Hello!', channel: 'general' },
   reminder: { text: 'Reminder text', notify: true },
   email: { to: 'user@example.com', subject: 'Subject', body: 'Body' },
@@ -196,21 +196,29 @@ export function CreateRecurringTaskModal({ isOpen, onClose }: CreateRecurringTas
           TASK PARAMETERS (JSON)
         </label>
         <div className="border border-jarvis-cyan/20 rounded-lg overflow-hidden">
-          <Editor
-            height="300px"
-            defaultLanguage="json"
-            value={values.taskParamsJson}
-            onChange={(value) => setValue('taskParamsJson', value || '')}
-            theme="vs-dark"
-            options={{
-              minimap: { enabled: false },
-              fontSize: 14,
-              lineNumbers: 'on',
-              scrollBeyondLastLine: false,
-              automaticLayout: true,
-              tabSize: 2,
-            }}
-          />
+          <Suspense
+            fallback={
+              <div className="h-[300px] flex items-center justify-center bg-jarvis-bg-dark text-jarvis-text-muted">
+                Loading editor...
+              </div>
+            }
+          >
+            <Editor
+              height="300px"
+              defaultLanguage="json"
+              value={values.taskParamsJson}
+              onChange={(value) => setValue('taskParamsJson', value || '')}
+              theme="vs-dark"
+              options={{
+                minimap: { enabled: false },
+                fontSize: 14,
+                lineNumbers: 'on',
+                scrollBeyondLastLine: false,
+                automaticLayout: true,
+                tabSize: 2,
+              }}
+            />
+          </Suspense>
         </div>
         {jsonError && <p className="mt-2 text-sm text-jarvis-orange">{jsonError}</p>}
       </div>

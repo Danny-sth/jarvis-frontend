@@ -1,12 +1,13 @@
 // LocalStorage implementation of IStorage
 import type { IStorage } from './IStorage';
+import { logger } from '../logger';
 
 export class LocalStorageAdapter implements IStorage {
   getItem(key: string): string | null {
     try {
       return localStorage.getItem(key);
     } catch (error) {
-      console.error(`Failed to get item "${key}" from localStorage:`, error);
+      logger.error(`Failed to get item "${key}" from localStorage:`, error);
       return null;
     }
   }
@@ -15,7 +16,7 @@ export class LocalStorageAdapter implements IStorage {
     try {
       localStorage.setItem(key, value);
     } catch (error) {
-      console.error(`Failed to set item "${key}" in localStorage:`, error);
+      logger.error(`Failed to set item "${key}" in localStorage:`, error);
     }
   }
 
@@ -23,7 +24,7 @@ export class LocalStorageAdapter implements IStorage {
     try {
       localStorage.removeItem(key);
     } catch (error) {
-      console.error(`Failed to remove item "${key}" from localStorage:`, error);
+      logger.error(`Failed to remove item "${key}" from localStorage:`, error);
     }
   }
 
@@ -31,7 +32,7 @@ export class LocalStorageAdapter implements IStorage {
     try {
       localStorage.clear();
     } catch (error) {
-      console.error('Failed to clear localStorage:', error);
+      logger.error('Failed to clear localStorage:', error);
     }
   }
 

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { MonitoringEvent } from '../../lib/api';
-import { useMonitoringAPI } from '../../contexts/APIContext';
+import { useMonitoringAPI } from '../../hooks/useAPI';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { formatDate } from '../../lib/utils';

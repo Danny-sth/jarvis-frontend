@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Edit, Trash2, Search } from 'lucide-react';
-import { useUserAPI } from '../../contexts/APIContext';
+import { useUserAPI } from '../../hooks/useAPI';
 import type { User } from '../../lib/api';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';

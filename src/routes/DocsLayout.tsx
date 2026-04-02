@@ -3,39 +3,16 @@ import { useQuery } from '@tanstack/react-query';
 import { BookOpen, Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import type { DocCategory } from '../lib/api';
-import { useDocsAPI } from '../contexts/APIContext';
+import { useDocsAPI } from '../hooks/useAPI';
 import { useIsMobile } from '../hooks/useMediaQuery';
 
-export default function DocsLayout() {
-  const docsAPI = useDocsAPI();
+interface DocsSidebarProps {
+  docs?: DocCategory[];
+  isLoading: boolean;
+}
 
-  const { data: docs, isLoading } = useQuery({
-    queryKey: ['docs-list'],
-    queryFn: () => docsAPI.list(),
-  });
-
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const isMobile = useIsMobile();
-  const location = useLocation();
-
-  // Close mobile menu on route change
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [location.pathname]);
-
-  // Lock body scroll when mobile menu is open
-  useEffect(() => {
-    if (isMobile && mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isMobile, mobileMenuOpen]);
-
-  const Sidebar = () => (
+// ✅ Вынесено за пределы функции DocsLayout чтобы избежать создания компонента при каждом рендере
+const DocsSidebar = ({ docs, isLoading }: DocsSidebarProps) => (
     <aside className="w-64 bg-jarvis-bg-sidebar border-r border-jarvis-cyan/20 h-screen overflow-y-auto sticky top-0">
       {/* Header */}
       <div className="p-6 border-b border-jarvis-cyan/20">
@@ -99,10 +76,42 @@ export default function DocsLayout() {
     </aside>
   );
 
+export default function DocsLayout() {
+  const docsAPI = useDocsAPI();
+
+  const { data: docs, isLoading } = useQuery({
+    queryKey: ['docs-list'],
+    queryFn: () => docsAPI.list(),
+  });
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
+  const location = useLocation();
+
+  // Close mobile menu on route change
+  // ✅ This setState is correct - synchronizing with router (external system)
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  // Lock body scroll when mobile menu is open
+  // ✅ This is correct - synchronizing with DOM (external system)
+  useEffect(() => {
+    if (isMobile && mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobile, mobileMenuOpen]);
+
   return (
     <div className="min-h-screen bg-jarvis-bg-dark flex">
       {/* Desktop Sidebar */}
-      {!isMobile && <Sidebar />}
+      {!isMobile && <DocsSidebar docs={docs} isLoading={isLoading} />}
 
       {/* Mobile */}
       {isMobile && (
@@ -133,7 +142,7 @@ export default function DocsLayout() {
 
               {/* Drawer */}
               <div className="fixed top-0 left-0 z-50 h-screen w-80 max-w-[85vw] animate-in slide-in-from-left duration-300">
-                <Sidebar />
+                <DocsSidebar docs={docs} isLoading={isLoading} />
               </div>
             </>
           )}

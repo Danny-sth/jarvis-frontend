@@ -6,13 +6,14 @@ import { useState, useEffect } from 'react';
  * @returns boolean indicating if query matches
  */
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState<boolean>(false);
+  // ✅ Используем initializer function для избежания лишнего рендера при mount
+  const [matches, setMatches] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia(query).matches;
+  });
 
   useEffect(() => {
     const media = window.matchMedia(query);
-
-    // Set initial value
-    setMatches(media.matches);
 
     // Create listener
     const listener = (e: MediaQueryListEvent) => {

@@ -36,7 +36,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         // Set height to scrollHeight
         textarea.style.height = `${textarea.scrollHeight}px`;
       }
-    }, [value, autoResize]);
+    }, [value, autoResize, textareaRef]);
 
     const currentLength = typeof value === 'string' ? value.length : 0;
     const showCounter = showCount && maxLength !== undefined;

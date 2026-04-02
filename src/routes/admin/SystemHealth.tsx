@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { Server, Activity, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useSystemAPI } from '../../contexts/APIContext';
+import { useSystemAPI } from '../../hooks/useAPI';
 import { Card } from '../../components/ui/Card';
 import { AnimatedProgress, AnimatedCircularProgress } from '../../components/ui/AnimatedProgress';
 import { Skeleton } from '../../components/ui/Skeleton';

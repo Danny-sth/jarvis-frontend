@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Play, Trash2 } from 'lucide-react';
-import { useWorkflowAPI } from '../../contexts/APIContext';
+import { useWorkflowAPI } from '../../hooks/useAPI';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../hooks/useAuth';
