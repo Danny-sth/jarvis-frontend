@@ -1,88 +1,9 @@
-import { useRef, useEffect } from 'react';
-import { motion, useMotionValue, useSpring, useAnimationFrame } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Eye } from './Eye';
 
 export function AIEyes() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mouseX = useRef(window.innerWidth / 2);
-  const mouseY = useRef(window.innerHeight / 2);
-
-  // Motion values for eye pupil position (NO re-renders!)
-  const leftEyeX = useMotionValue(0);
-  const leftEyeY = useMotionValue(0);
-  const rightEyeX = useMotionValue(0);
-  const rightEyeY = useMotionValue(0);
-
-  // Spring physics for smooth following
-  const leftEyeXSpring = useSpring(leftEyeX, {
-    stiffness: 150,
-    damping: 20,
-    mass: 0.5,
-  });
-  const leftEyeYSpring = useSpring(leftEyeY, {
-    stiffness: 150,
-    damping: 20,
-    mass: 0.5,
-  });
-  const rightEyeXSpring = useSpring(rightEyeX, {
-    stiffness: 150,
-    damping: 20,
-    mass: 0.5,
-  });
-  const rightEyeYSpring = useSpring(rightEyeY, {
-    stiffness: 150,
-    damping: 20,
-    mass: 0.5,
-  });
-
-  // Eye positions (fixed at top center)
-  const eyeGap = 120;
-  const eyeY = 80;
-
-  // Mouse tracking WITHOUT re-render
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseX.current = e.clientX;
-      mouseY.current = e.clientY;
-    };
-
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  // Update eye pupil positions every frame (smooth 60fps)
-  useAnimationFrame(() => {
-    const centerX = window.innerWidth / 2;
-    const leftEyePosX = centerX - eyeGap;
-    const rightEyePosX = centerX + eyeGap;
-
-    // Calculate offset from eye center to mouse (max 24px in each direction for natural look)
-    const maxOffset = 24;
-
-    // Left eye offset
-    const leftDx = mouseX.current - leftEyePosX;
-    const leftDy = mouseY.current - eyeY;
-    const leftDistance = Math.sqrt(leftDx * leftDx + leftDy * leftDy);
-    const leftOffsetX = leftDistance > 0 ? (leftDx / leftDistance) * Math.min(leftDistance / 20, maxOffset) : 0;
-    const leftOffsetY = leftDistance > 0 ? (leftDy / leftDistance) * Math.min(leftDistance / 20, maxOffset) : 0;
-
-    // Right eye offset
-    const rightDx = mouseX.current - rightEyePosX;
-    const rightDy = mouseY.current - eyeY;
-    const rightDistance = Math.sqrt(rightDx * rightDx + rightDy * rightDy);
-    const rightOffsetX = rightDistance > 0 ? (rightDx / rightDistance) * Math.min(rightDistance / 20, maxOffset) : 0;
-    const rightOffsetY = rightDistance > 0 ? (rightDy / rightDistance) * Math.min(rightDistance / 20, maxOffset) : 0;
-
-    // Update motion values (spring will smooth it)
-    leftEyeX.set(leftOffsetX);
-    leftEyeY.set(leftOffsetY);
-    rightEyeX.set(rightOffsetX);
-    rightEyeY.set(rightOffsetY);
-  });
-
   return (
     <motion.div
-      ref={containerRef}
       className="fixed top-0 left-1/2 -translate-x-1/2 z-[5] pointer-events-none"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -208,22 +129,22 @@ export function AIEyes() {
         />
       </svg>
 
-      {/* Eyes - Cyan/Blue Iron Man style with proper pupil tracking */}
+      {/* Eyes - Iron Man style trapezoidal glowing slits */}
       <div className="relative pt-20">
-        <div className="flex items-center justify-center gap-60">
-          <Eye x={leftEyeXSpring} y={leftEyeYSpring} />
-          <Eye x={rightEyeXSpring} y={rightEyeYSpring} />
+        <div className="flex items-center justify-center gap-40">
+          <Eye className="w-32 h-8" />
+          <Eye className="w-32 h-8" />
         </div>
 
         {/* Connecting energy beam - cyan/blue */}
         <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-[3px] -z-10"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-[2px] -z-10"
           style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgba(6, 182, 212, 0.5) 20%, rgba(14, 165, 233, 0.7) 50%, rgba(6, 182, 212, 0.5) 80%, transparent 100%)',
-            boxShadow: '0 0 15px rgba(6, 182, 212, 0.7), 0 0 30px rgba(14, 165, 233, 0.4)',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 20%, rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0.6) 80%, transparent 100%)',
+            boxShadow: '0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(6, 182, 212, 0.6)',
           }}
           animate={{
-            opacity: [0.5, 0.8, 0.5],
+            opacity: [0.6, 0.9, 0.6],
           }}
           transition={{
             duration: 2,

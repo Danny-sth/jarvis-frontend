@@ -1,93 +1,87 @@
-import { motion, type MotionValue } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface EyeProps {
-  x: MotionValue<number>;
-  y: MotionValue<number>;
   className?: string;
 }
 
 /**
- * Iron Man-style eye component with proper pupil tracking
- * Eyes don't rotate - the iris/pupil moves inside the eye socket
+ * Iron Man helmet eye - narrow trapezoidal glowing slit
+ * Classic MCU Iron Man style - no pupils, just bright glowing aperture
  */
-export function Eye({ x, y, className = 'w-28 h-7' }: EyeProps) {
+export function Eye({ className = '' }: EyeProps) {
   return (
     <div className={`relative ${className}`}>
-      {/* Eye outer glow - cyan/blue (Iron Man colors) */}
+      {/* Outer glow - bright white/cyan */}
       <div
-        className="absolute inset-0 rounded-full"
+        className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse at center, rgba(6, 182, 212, 0.8) 0%, rgba(14, 165, 233, 0.4) 50%, transparent 70%)',
-          filter: 'blur(16px)',
+            'radial-gradient(ellipse 100% 80% at center, rgba(255, 255, 255, 0.9) 0%, rgba(6, 182, 212, 0.6) 40%, transparent 70%)',
+          filter: 'blur(20px)',
         }}
       />
 
-      {/* Eye socket/frame - darker blue outline */}
-      <div
-        className="absolute inset-0 rounded-full relative overflow-hidden"
-        style={{
-          background: 'rgba(8, 51, 68, 0.6)',
-          boxShadow:
-            '0 0 20px rgba(6, 182, 212, 0.6), 0 0 40px rgba(14, 165, 233, 0.3), inset 0 0 10px rgba(6, 182, 212, 0.4)',
-          border: '2px solid rgba(6, 182, 212, 0.3)',
-        }}
+      {/* Main eye slit - trapezoidal shape */}
+      <svg
+        viewBox="0 0 120 30"
+        className="absolute inset-0 w-full h-full"
+        style={{ filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.8))' }}
       >
-        {/* Moving iris/pupil that tracks mouse */}
-        <motion.div
-          className="absolute w-16 h-6 rounded-full"
-          style={{
-            x,
-            y,
-            left: '50%',
-            top: '50%',
-            translateX: '-50%',
-            translateY: '-50%',
-            background:
-              'radial-gradient(ellipse at center, rgba(255, 255, 255, 1) 0%, rgba(6, 182, 212, 1) 30%, rgba(14, 165, 233, 1) 60%, rgba(6, 182, 212, 0.8) 100%)',
-            boxShadow:
-              '0 0 15px rgba(6, 182, 212, 1), 0 0 30px rgba(14, 165, 233, 0.8), inset 0 0 8px rgba(255, 255, 255, 0.9)',
-          }}
-        >
-          {/* Center bright spot */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-[3px] bg-white opacity-95 shadow-[0_0_10px_rgba(255,255,255,1)]" />
+        <defs>
+          {/* Bright white-cyan gradient */}
+          <linearGradient id="eyeGlow" x1="0%" y1="50%" x2="100%" y2="50%">
+            <stop offset="0%" stopColor="rgba(100, 200, 255, 0.8)" />
+            <stop offset="20%" stopColor="rgba(255, 255, 255, 1)" />
+            <stop offset="50%" stopColor="rgba(255, 255, 255, 1)" />
+            <stop offset="80%" stopColor="rgba(255, 255, 255, 1)" />
+            <stop offset="100%" stopColor="rgba(100, 200, 255, 0.8)" />
+          </linearGradient>
+        </defs>
 
-          {/* Scanning line animation - cyan */}
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-300 to-transparent opacity-40"
-            animate={{ translateY: ['-100%', '100%'] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
-          />
-        </motion.div>
-
-        {/* Inner glow */}
-        <motion.div
-          className="absolute inset-0 rounded-full pointer-events-none"
-          style={{
-            background:
-              'radial-gradient(ellipse at center, rgba(6, 182, 212, 0.4) 0%, transparent 60%)',
-          }}
-          animate={{
-            opacity: [0.3, 0.6, 0.3],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
+        {/* Trapezoidal eye shape - wider in center, narrower at edges */}
+        <polygon
+          points="10,15 30,8 90,8 110,15 90,22 30,22"
+          fill="url(#eyeGlow)"
+          opacity="0.95"
         />
-      </div>
+      </svg>
 
-      {/* Outer pulsing glow */}
-      <motion.div
-        className="absolute inset-0 rounded-full pointer-events-none"
+      {/* Inner bright core */}
+      <div
+        className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse at center, rgba(6, 182, 212, 0.5) 0%, transparent 70%)',
+            'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.9) 20%, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0.9) 80%, transparent 100%)',
+          clipPath: 'polygon(8% 50%, 25% 20%, 75% 20%, 92% 50%, 75% 80%, 25% 80%)',
+        }}
+      />
+
+      {/* Scanning line animation */}
+      <motion.div
+        className="absolute inset-0"
+        style={{
+          background: 'linear-gradient(to bottom, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%)',
+          clipPath: 'polygon(8% 50%, 25% 20%, 75% 20%, 92% 50%, 75% 80%, 25% 80%)',
         }}
         animate={{
-          scale: [1, 1.15, 1],
-          opacity: [0.4, 0.7, 0.4],
+          translateY: ['-100%', '100%'],
+        }}
+        transition={{
+          duration: 2,
+          repeat: Infinity,
+          ease: 'linear',
+        }}
+      />
+
+      {/* Pulsing glow effect */}
+      <motion.div
+        className="absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(ellipse 100% 70% at center, rgba(255, 255, 255, 0.4) 0%, transparent 60%)',
+        }}
+        animate={{
+          opacity: [0.6, 1, 0.6],
         }}
         transition={{
           duration: 1.5,
