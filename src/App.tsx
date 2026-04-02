@@ -1,9 +1,13 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useAuthStore } from './store/auth';
+import { useAuth } from './hooks/useAuth';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ToastContainer } from './components/ui/Toast';
+import { APIProvider } from './contexts/APIContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { MetricsProvider } from './contexts/MetricsContext';
+import { ToastProvider } from './contexts/ToastContext';
 
 // Pages
 import LoginPage from './routes/LoginPage';
@@ -30,16 +34,15 @@ const queryClient = new QueryClient({
   },
 });
 
-function App() {
-  const checkAuth = useAuthStore((state) => state.checkAuth);
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+function AppContent() {
+  const { checkAuth, isAuthenticated } = useAuth();
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <>
       <ToastContainer />
       <BrowserRouter>
         <Routes>
@@ -84,7 +87,23 @@ function App() {
           />
         </Routes>
       </BrowserRouter>
-    </QueryClientProvider>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <APIProvider>
+      <AuthProvider>
+        <MetricsProvider>
+          <ToastProvider>
+            <QueryClientProvider client={queryClient}>
+              <AppContent />
+            </QueryClientProvider>
+          </ToastProvider>
+        </MetricsProvider>
+      </AuthProvider>
+    </APIProvider>
   );
 }
 

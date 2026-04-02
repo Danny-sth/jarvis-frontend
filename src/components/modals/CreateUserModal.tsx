@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { api, type CreateUserRequest } from '../../lib/api-client';
-import { useToastStore } from '../../store/toastStore';
-import { Modal } from '../ui/Modal';
+import type { CreateUserRequest } from '../../lib/api';
+import { useUserAPI } from '../../contexts/APIContext';
+import { useFormState } from '../../hooks/forms/useFormState';
+import { useFormValidation } from '../../hooks/forms/useFormValidation';
+import { useFormSubmission } from '../../hooks/forms/useFormSubmission';
+import { FormModal } from '../forms/FormModal';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { Switch } from '../ui/Switch';
-import { Button } from '../ui/Button';
 import { USER_ROLES } from '../../lib/constants';
 
 interface CreateUserModalProps {
@@ -14,118 +14,129 @@ interface CreateUserModalProps {
   onClose: () => void;
 }
 
+interface CreateUserFormValues {
+  username: string;
+  password: string;
+  role: string;
+  telegramId: string;
+  isActive: boolean;
+}
+
 export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('public');
-  const [telegramId, setTelegramId] = useState('');
-  const [isActive, setIsActive] = useState(true);
+  const userAPI = useUserAPI();
 
-  const showToast = useToastStore((state) => state.show);
-  const queryClient = useQueryClient();
+  const { values, setValue, reset } = useFormState<CreateUserFormValues>({
+    username: '',
+    password: '',
+    role: 'public',
+    telegramId: '',
+    isActive: true,
+  });
 
-  const createMutation = useMutation({
-    mutationFn: (data: CreateUserRequest) => api.createUser(data),
-    onSuccess: () => {
-      showToast({ type: 'success', message: 'User created successfully!' });
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      handleClose();
-    },
-    onError: (error: Error) => {
-      showToast({
-        type: 'error',
-        message: error.message || 'Failed to create user',
-      });
+  const { validate } = useFormValidation<CreateUserFormValues>({
+    username: { required: true, minLength: 3 },
+    password: { required: true, minLength: 8 },
+    telegramId: {
+      custom: [
+        {
+          validate: (value: string) => {
+            if (!value.trim()) return true;
+            return !isNaN(parseInt(value.trim()));
+          },
+          message: 'Telegram ID must be a number',
+        },
+      ],
     },
   });
 
+  const { submit, isSubmitting } = useFormSubmission<unknown, CreateUserRequest>({
+    mutationFn: (data) => userAPI.create(data),
+    onSuccess: () => {
+      reset();
+      onClose();
+    },
+    invalidateQueries: ['users'],
+    successMessage: 'User created successfully!',
+    errorMessage: 'Failed to create user',
+  });
+
   const handleClose = () => {
-    setUsername('');
-    setPassword('');
-    setRole('public');
-    setTelegramId('');
-    setIsActive(true);
+    reset();
     onClose();
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate
-    if (username.trim().length < 3) {
-      showToast({ type: 'error', message: 'Username must be at least 3 characters' });
+    const errors = validate(values);
+    if (errors.length > 0) {
+      submit(null as any, errors);
       return;
     }
 
-    if (password.length < 8) {
-      showToast({ type: 'error', message: 'Password must be at least 8 characters' });
-      return;
-    }
+    const telegramIdNum = values.telegramId.trim()
+      ? parseInt(values.telegramId.trim())
+      : null;
 
-    const telegramIdNum = telegramId.trim() ? parseInt(telegramId.trim()) : null;
-    if (telegramId.trim() && isNaN(telegramIdNum!)) {
-      showToast({ type: 'error', message: 'Telegram ID must be a number' });
-      return;
-    }
-
-    createMutation.mutate({
-      username: username.trim(),
-      password,
-      role,
+    submit({
+      username: values.username.trim(),
+      password: values.password,
+      role: values.role,
       telegram_id: telegramIdNum,
-      is_active: isActive,
+      is_active: values.isActive,
     });
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="CREATE USER" size="md">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          label="USERNAME"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Enter username"
-          required
-          minLength={3}
-          autoFocus
-        />
+    <FormModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      onSubmit={handleSubmit}
+      title="CREATE USER"
+      size="md"
+      submitLabel="CREATE USER"
+      isSubmitting={isSubmitting}
+    >
+      <Input
+        label="USERNAME"
+        value={values.username}
+        onChange={(e) => setValue('username', e.target.value)}
+        placeholder="Enter username"
+        required
+        minLength={3}
+        autoFocus
+      />
 
-        <Input
-          label="PASSWORD"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter password (min 8 characters)"
-          required
-          minLength={8}
-        />
+      <Input
+        label="PASSWORD"
+        type="password"
+        value={values.password}
+        onChange={(e) => setValue('password', e.target.value)}
+        placeholder="Enter password (min 8 characters)"
+        required
+        minLength={8}
+      />
 
-        <Select
-          label="ROLE"
-          options={USER_ROLES.map(r => ({ value: r.value, label: r.label }))}
-          value={role}
-          onChange={(value) => setRole(value as string)}
-        />
+      <Select
+        label="ROLE"
+        options={USER_ROLES.map((r) => ({ value: r.value, label: r.label }))}
+        value={values.role}
+        onChange={(value) => setValue('role', value as string)}
+      />
 
-        <Input
-          label="TELEGRAM ID (optional)"
-          type="number"
-          value={telegramId}
-          onChange={(e) => setTelegramId(e.target.value)}
-          placeholder="Enter Telegram ID"
-        />
+      <Input
+        label="TELEGRAM ID (optional)"
+        type="number"
+        value={values.telegramId}
+        onChange={(e) => setValue('telegramId', e.target.value)}
+        placeholder="Enter Telegram ID"
+      />
 
-        <Switch label="ACTIVE" checked={isActive} onChange={setIsActive} />
-
-        <div className="flex justify-end gap-3 pt-4">
-          <Button type="button" variant="ghost" onClick={handleClose}>
-            CANCEL
-          </Button>
-          <Button type="submit" variant="primary" disabled={createMutation.isPending}>
-            {createMutation.isPending ? 'CREATING...' : 'CREATE USER'}
-          </Button>
-        </div>
-      </form>
-    </Modal>
+      <Switch
+        label="ACTIVE"
+        checked={values.isActive}
+        onChange={(checked) => setValue('isActive', checked)}
+      />
+    </FormModal>
   );
 }

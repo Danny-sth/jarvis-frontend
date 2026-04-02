@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { api, type User, type UpdateUserRequest } from '../../lib/api-client';
-import { useToastStore } from '../../store/toastStore';
-import { Modal } from '../ui/Modal';
+import { useEffect } from 'react';
+import type { User, UpdateUserRequest } from '../../lib/api';
+import { useUserAPI } from '../../contexts/APIContext';
+import { useFormState } from '../../hooks/forms/useFormState';
+import { useFormValidation } from '../../hooks/forms/useFormValidation';
+import { useFormSubmission } from '../../hooks/forms/useFormSubmission';
+import { FormModal } from '../forms/FormModal';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { Switch } from '../ui/Switch';
-import { Button } from '../ui/Button';
 import { USER_ROLES } from '../../lib/constants';
+import { useToast } from '../../hooks/useToast';
 
 interface EditUserModalProps {
   isOpen: boolean;
@@ -15,48 +17,68 @@ interface EditUserModalProps {
   user: User | null;
 }
 
-export function EditUserModal({ isOpen, onClose, user }: EditUserModalProps) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('public');
-  const [telegramId, setTelegramId] = useState('');
-  const [isActive, setIsActive] = useState(true);
+interface EditUserFormValues {
+  username: string;
+  password: string;
+  role: string;
+  telegramId: string;
+  isActive: boolean;
+}
 
-  const showToast = useToastStore((state) => state.show);
-  const queryClient = useQueryClient();
+export function EditUserModal({ isOpen, onClose, user }: EditUserModalProps) {
+  const userAPI = useUserAPI();
+  const { show: showToast } = useToast();
+
+  const { values, setValue, setMultipleValues, reset } = useFormState<EditUserFormValues>({
+    username: '',
+    password: '',
+    role: 'public',
+    telegramId: '',
+    isActive: true,
+  });
 
   // Pre-fill form when user changes
   useEffect(() => {
     if (user) {
-      setUsername(user.username);
-      setRole(user.role);
-      setTelegramId(user.telegram_id ? String(user.telegram_id) : '');
-      setIsActive(user.is_active);
-      setPassword(''); // Don't pre-fill password
-    }
-  }, [user]);
-
-  const updateMutation = useMutation({
-    mutationFn: (data: UpdateUserRequest) => api.updateUser(user!.id, data),
-    onSuccess: () => {
-      showToast({ type: 'success', message: 'User updated successfully!' });
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      handleClose();
-    },
-    onError: (error: Error) => {
-      showToast({
-        type: 'error',
-        message: error.message || 'Failed to update user',
+      setMultipleValues({
+        username: user.username,
+        role: user.role,
+        telegramId: user.telegram_id ? String(user.telegram_id) : '',
+        isActive: user.is_active,
+        password: '', // Don't pre-fill password
       });
+    }
+  }, [user, setMultipleValues]);
+
+  const { validate } = useFormValidation<EditUserFormValues>({
+    username: { required: true, minLength: 3 },
+    password: { minLength: 8 }, // Optional but must be 8+ if provided
+    telegramId: {
+      custom: [
+        {
+          validate: (value: string) => {
+            if (!value.trim()) return true;
+            return !isNaN(parseInt(value.trim()));
+          },
+          message: 'Telegram ID must be a number',
+        },
+      ],
     },
   });
 
+  const { submit, isSubmitting } = useFormSubmission<unknown, UpdateUserRequest>({
+    mutationFn: (data) => userAPI.update(user!.id, data),
+    onSuccess: () => {
+      reset();
+      onClose();
+    },
+    invalidateQueries: ['users'],
+    successMessage: 'User updated successfully!',
+    errorMessage: 'Failed to update user',
+  });
+
   const handleClose = () => {
-    setUsername('');
-    setPassword('');
-    setRole('public');
-    setTelegramId('');
-    setIsActive(true);
+    reset();
     onClose();
   };
 
@@ -65,45 +87,38 @@ export function EditUserModal({ isOpen, onClose, user }: EditUserModalProps) {
 
     if (!user) return;
 
-    // Validate
-    if (username.trim().length < 3) {
-      showToast({ type: 'error', message: 'Username must be at least 3 characters' });
+    const errors = validate(values);
+    if (errors.length > 0) {
+      submit(null as any, errors);
       return;
     }
 
-    if (password && password.length < 8) {
-      showToast({ type: 'error', message: 'Password must be at least 8 characters if provided' });
-      return;
-    }
-
-    const telegramIdNum = telegramId.trim() ? parseInt(telegramId.trim()) : null;
-    if (telegramId.trim() && isNaN(telegramIdNum!)) {
-      showToast({ type: 'error', message: 'Telegram ID must be a number' });
-      return;
-    }
+    const telegramIdNum = values.telegramId.trim()
+      ? parseInt(values.telegramId.trim())
+      : null;
 
     const updates: UpdateUserRequest = {};
 
     // Only include changed fields
-    if (username.trim() !== user.username) {
-      updates.username = username.trim();
+    if (values.username.trim() !== user.username) {
+      updates.username = values.username.trim();
     }
 
-    if (password) {
-      updates.password = password;
+    if (values.password) {
+      updates.password = values.password;
     }
 
-    if (role !== user.role) {
-      updates.role = role;
+    if (values.role !== user.role) {
+      updates.role = values.role;
     }
 
     const currentTgId = user.telegram_id ? String(user.telegram_id) : '';
-    if (telegramId.trim() !== currentTgId) {
+    if (values.telegramId.trim() !== currentTgId) {
       updates.telegram_id = telegramIdNum;
     }
 
-    if (isActive !== user.is_active) {
-      updates.is_active = isActive;
+    if (values.isActive !== user.is_active) {
+      updates.is_active = values.isActive;
     }
 
     if (Object.keys(updates).length === 0) {
@@ -111,59 +126,60 @@ export function EditUserModal({ isOpen, onClose, user }: EditUserModalProps) {
       return;
     }
 
-    updateMutation.mutate(updates);
+    submit(updates);
   };
 
   if (!user) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="EDIT USER" size="md">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          label="USERNAME"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Enter username"
-          required
-          minLength={3}
-          autoFocus
-        />
+    <FormModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      onSubmit={handleSubmit}
+      title="EDIT USER"
+      size="md"
+      submitLabel="UPDATE USER"
+      isSubmitting={isSubmitting}
+    >
+      <Input
+        label="USERNAME"
+        value={values.username}
+        onChange={(e) => setValue('username', e.target.value)}
+        placeholder="Enter username"
+        required
+        minLength={3}
+        autoFocus
+      />
 
-        <Input
-          label="PASSWORD (leave empty to keep current)"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter new password"
-          minLength={8}
-        />
+      <Input
+        label="PASSWORD (leave empty to keep current)"
+        type="password"
+        value={values.password}
+        onChange={(e) => setValue('password', e.target.value)}
+        placeholder="Enter new password"
+        minLength={8}
+      />
 
-        <Select
-          label="ROLE"
-          options={USER_ROLES.map(r => ({ value: r.value, label: r.label }))}
-          value={role}
-          onChange={(value) => setRole(value as string)}
-        />
+      <Select
+        label="ROLE"
+        options={USER_ROLES.map((r) => ({ value: r.value, label: r.label }))}
+        value={values.role}
+        onChange={(value) => setValue('role', value as string)}
+      />
 
-        <Input
-          label="TELEGRAM ID (optional)"
-          type="number"
-          value={telegramId}
-          onChange={(e) => setTelegramId(e.target.value)}
-          placeholder="Enter Telegram ID"
-        />
+      <Input
+        label="TELEGRAM ID (optional)"
+        type="number"
+        value={values.telegramId}
+        onChange={(e) => setValue('telegramId', e.target.value)}
+        placeholder="Enter Telegram ID"
+      />
 
-        <Switch label="ACTIVE" checked={isActive} onChange={setIsActive} />
-
-        <div className="flex justify-end gap-3 pt-4">
-          <Button type="button" variant="ghost" onClick={handleClose}>
-            CANCEL
-          </Button>
-          <Button type="submit" variant="primary" disabled={updateMutation.isPending}>
-            {updateMutation.isPending ? 'UPDATING...' : 'UPDATE USER'}
-          </Button>
-        </div>
-      </form>
-    </Modal>
+      <Switch
+        label="ACTIVE"
+        checked={values.isActive}
+        onChange={(checked) => setValue('isActive', checked)}
+      />
+    </FormModal>
   );
 }

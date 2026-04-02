@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { SystemMetricsWSClient, createSystemMetricsWSUrl } from '../lib/websocket';
 
 export interface SystemMetrics {
   cpu_percent: number;
@@ -14,7 +15,6 @@ export interface SystemMetrics {
 interface SystemMetricsStore {
   metrics: SystemMetrics | null;
   isConnected: boolean;
-  websocket: WebSocket | null;
 
   setMetrics: (metrics: SystemMetrics) => void;
   setConnected: (connected: boolean) => void;
@@ -23,63 +23,32 @@ interface SystemMetricsStore {
   disconnect: () => void;
 }
 
-export const useSystemMetricsStore = create<SystemMetricsStore>((set, get) => ({
-  metrics: null,
-  isConnected: false,
-  websocket: null,
+// Create WebSocket client instance (outside Zustand store to avoid memory leak)
+const wsClient = new SystemMetricsWSClient(createSystemMetricsWSUrl());
 
-  setMetrics: (metrics) => set({ metrics }),
-  setConnected: (connected) => set({ isConnected: connected }),
+export const useSystemMetricsStore = create<SystemMetricsStore>((set) => {
+  // Register callbacks on client
+  wsClient.onMessage((metrics) => {
+    set({ metrics });
+  });
 
-  connect: () => {
-    const { websocket, disconnect } = get();
+  wsClient.onConnectionChange((connected) => {
+    set({ isConnected: connected });
+  });
 
-    // Disconnect existing connection
-    if (websocket) {
-      disconnect();
-    }
+  return {
+    metrics: null,
+    isConnected: false,
 
-    // Create WebSocket connection
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8081';
-    const wsUrl = apiUrl.replace(/^http/, 'ws') + '/ws/system/metrics';
-    const ws = new WebSocket(wsUrl);
+    setMetrics: (metrics) => set({ metrics }),
+    setConnected: (connected) => set({ isConnected: connected }),
 
-    ws.onopen = () => {
-      console.log('[SystemMetrics] WebSocket connected');
-      set({ isConnected: true });
-    };
+    connect: () => {
+      wsClient.connect();
+    },
 
-    ws.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        if (message.type === 'metrics' && message.data) {
-          set({ metrics: message.data, isConnected: true });
-        }
-      } catch (error) {
-        console.error('[SystemMetrics] Failed to parse message:', error);
-      }
-    };
-
-    ws.onerror = (error) => {
-      console.error('[SystemMetrics] WebSocket error:', error);
-      set({ isConnected: false });
-    };
-
-    ws.onclose = () => {
-      console.log('[SystemMetrics] WebSocket disconnected');
-      set({ isConnected: false, websocket: null });
-      // Auto-reconnect after 3 seconds
-      setTimeout(() => get().connect(), 3000);
-    };
-
-    set({ websocket: ws });
-  },
-
-  disconnect: () => {
-    const { websocket } = get();
-    if (websocket) {
-      websocket.close();
-      set({ websocket: null, isConnected: false });
-    }
-  },
-}));
+    disconnect: () => {
+      wsClient.disconnect();
+    },
+  };
+});

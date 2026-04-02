@@ -1,22 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Save, Play } from 'lucide-react';
-import { api } from '../../lib/api-client';
-import type { HeartbeatConfig as IHeartbeatConfig } from '../../lib/api-client';
+import { useHeartbeatAPI } from '../../contexts/APIContext';
+import type { HeartbeatConfig as IHeartbeatConfig } from '../../lib/api';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { useAuthStore } from '../../store/auth';
+import { useAuth } from '../../hooks/useAuth';
 import { AVAILABLE_CHECKS } from '../../lib/constants';
 
 export default function HeartbeatConfig() {
-  const { userId } = useAuthStore();
+  const { userId } = useAuth();
+  const heartbeatAPI = useHeartbeatAPI();
   const queryClient = useQueryClient();
   const [message, setMessage] = useState('');
 
   const { data: config, isLoading } = useQuery({
     queryKey: ['heartbeat-config', userId],
-    queryFn: () => api.getHeartbeatConfig(userId!),
+    queryFn: () => heartbeatAPI.getConfig(userId!),
     enabled: !!userId,
   });
 
@@ -38,7 +39,7 @@ export default function HeartbeatConfig() {
   }, [config]);
 
   const updateMutation = useMutation({
-    mutationFn: (data: IHeartbeatConfig) => api.updateHeartbeatConfig(data, userId || undefined),
+    mutationFn: (data: IHeartbeatConfig) => heartbeatAPI.updateConfig(data, userId || undefined),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['heartbeat-config', userId] });
       setMessage('Config saved successfully');
@@ -47,7 +48,7 @@ export default function HeartbeatConfig() {
   });
 
   const runMutation = useMutation({
-    mutationFn: () => api.runHeartbeat(userId!),
+    mutationFn: () => heartbeatAPI.run(userId!),
     onSuccess: () => {
       setMessage('Heartbeat executed');
       setTimeout(() => setMessage(''), 3000);

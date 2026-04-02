@@ -1,111 +1,109 @@
-import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../../lib/api-client';
-import { useAuthStore } from '../../store/auth';
-import { useToastStore } from '../../store/toastStore';
-import { Modal } from '../ui/Modal';
+import { useCortexAPI } from '../../contexts/APIContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useFormState } from '../../hooks/forms/useFormState';
+import { useFormValidation } from '../../hooks/forms/useFormValidation';
+import { useFormSubmission } from '../../hooks/forms/useFormSubmission';
+import { FormModal } from '../forms/FormModal';
 import { Textarea } from '../ui/Textarea';
 import { Slider } from '../ui/Slider';
-import { Button } from '../ui/Button';
 
 interface StoreMemoryModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+interface StoreMemoryFormValues {
+  content: string;
+  importance: number;
+}
+
 export function StoreMemoryModal({ isOpen, onClose }: StoreMemoryModalProps) {
-  const [content, setContent] = useState('');
-  const [importance, setImportance] = useState(5);
+  const { userId } = useAuth();
+  const cortexAPI = useCortexAPI();
 
-  const userId = useAuthStore((state) => state.userId);
-  const showToast = useToastStore((state) => state.show);
-  const queryClient = useQueryClient();
+  const { values, setValue, reset } = useFormState<StoreMemoryFormValues>({
+    content: '',
+    importance: 5,
+  });
 
-  const storeMutation = useMutation({
-    mutationFn: (data: { content: string; importance: number }) =>
-      api.storeMemory(data.content, userId!, data.importance),
+  const { validate } = useFormValidation<StoreMemoryFormValues>({
+    content: { required: true, minLength: 1 },
+    importance: { min: 1, max: 10 },
+  });
+
+  const { submit, isSubmitting } = useFormSubmission<unknown, { content: string; importance: number }>({
+    mutationFn: (data) => cortexAPI.storeMemory(data.content, userId!, data.importance),
     onSuccess: () => {
-      showToast({ type: 'success', message: 'Memory stored successfully!' });
-      queryClient.invalidateQueries({ queryKey: ['memory'] });
-      handleClose();
+      reset();
+      onClose();
     },
-    onError: (error: any) => {
-      showToast({
-        type: 'error',
-        message: error.message || 'Failed to store memory',
-      });
-    },
+    invalidateQueries: ['memory'],
+    successMessage: 'Memory stored successfully!',
+    errorMessage: 'Failed to store memory',
   });
 
   const handleClose = () => {
-    setContent('');
-    setImportance(5);
+    reset();
     onClose();
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (content.trim().length === 0) {
-      showToast({ type: 'error', message: 'Content is required' });
+    const errors = validate(values);
+    if (errors.length > 0) {
+      submit(null as any, errors);
       return;
     }
 
-    storeMutation.mutate({
-      content: content.trim(),
-      importance,
+    submit({
+      content: values.content.trim(),
+      importance: values.importance,
     });
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="STORE MEMORY" size="md">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Textarea
-          label="CONTENT"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Enter memory content..."
-          rows={6}
-          required
-          autoFocus
-          maxLength={5000}
-          showCount
-        />
+    <FormModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      onSubmit={handleSubmit}
+      title="STORE MEMORY"
+      size="md"
+      submitLabel="STORE MEMORY"
+      isSubmitting={isSubmitting}
+    >
+      <Textarea
+        label="CONTENT"
+        value={values.content}
+        onChange={(e) => setValue('content', e.target.value)}
+        placeholder="Enter memory content..."
+        rows={6}
+        required
+        autoFocus
+        maxLength={5000}
+        showCount
+      />
 
-        <Slider
-          label="IMPORTANCE"
-          value={importance}
-          onChange={setImportance}
-          min={1}
-          max={10}
-          showValue
-        />
+      <Slider
+        label="IMPORTANCE"
+        value={values.importance}
+        onChange={(value) => setValue('importance', value)}
+        min={1}
+        max={10}
+        showValue
+      />
 
-        <div className="bg-jarvis-bg-dark border border-jarvis-cyan/20 rounded p-3">
-          <p className="text-xs text-jarvis-text-muted">
-            <strong>Importance levels:</strong>
-            <br />
-            1-3: Low priority (general notes)
-            <br />
-            4-7: Medium priority (important context)
-            <br />
-            8-10: High priority (critical information)
-          </p>
-        </div>
-
-        <div className="flex justify-end gap-3 pt-4">
-          <Button type="button" variant="ghost" onClick={handleClose}>
-            CANCEL
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            disabled={storeMutation.isPending}
-          >
-            {storeMutation.isPending ? 'STORING...' : 'STORE MEMORY'}
-          </Button>
-        </div>
-      </form>
-    </Modal>
+      <div className="bg-jarvis-bg-dark border border-jarvis-cyan/20 rounded p-3">
+        <p className="text-xs text-jarvis-text-muted">
+          <strong>Importance levels:</strong>
+          <br />
+          1-3: Low priority (general notes)
+          <br />
+          4-7: Medium priority (important context)
+          <br />
+          8-10: High priority (critical information)
+        </p>
+      </div>
+    </FormModal>
   );
 }

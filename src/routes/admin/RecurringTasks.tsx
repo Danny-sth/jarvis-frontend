@@ -1,26 +1,27 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, Clock } from 'lucide-react';
-import { api } from '../../lib/api-client';
+import { useRecurringTasksAPI } from '../../contexts/APIContext';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { useAuthStore } from '../../store/auth';
+import { useAuth } from '../../hooks/useAuth';
 import { formatDate } from '../../lib/utils';
 import { CreateRecurringTaskModal } from '../../components/modals/CreateRecurringTaskModal';
 
 export default function RecurringTasks() {
+  const recurringTasksAPI = useRecurringTasksAPI();
   const [createModalOpen, setCreateModalOpen] = useState(false);
-  const { userId } = useAuthStore();
+  const { userId } = useAuth();
   const queryClient = useQueryClient();
 
   const { data: tasks, isLoading } = useQuery({
     queryKey: ['recurring-tasks', userId],
-    queryFn: () => api.listRecurring(userId!),
+    queryFn: () => recurringTasksAPI.list(userId!),
     enabled: !!userId,
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => api.deleteRecurring(id),
+    mutationFn: (id: string) => recurringTasksAPI.deleteById(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recurring-tasks', userId] });
     },

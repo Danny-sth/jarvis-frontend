@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { Server, Activity, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { api } from '../../lib/api-client';
+import { useSystemAPI } from '../../contexts/APIContext';
 import { Card } from '../../components/ui/Card';
 import { AnimatedProgress, AnimatedCircularProgress } from '../../components/ui/AnimatedProgress';
 import { Skeleton } from '../../components/ui/Skeleton';
@@ -10,10 +10,11 @@ import { useSystemMetricsStore } from '../../store/systemMetricsStore';
 
 export default function SystemHealth() {
   const { metrics, isConnected, connect, disconnect } = useSystemMetricsStore();
+  const systemAPI = useSystemAPI();
 
   const { data: version } = useQuery({
     queryKey: ['system-version'],
-    queryFn: () => api.getVersion(),
+    queryFn: () => systemAPI.getVersion(),
   });
 
   // Connect to WebSocket on mount

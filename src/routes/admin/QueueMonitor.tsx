@@ -1,21 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Trash2, RefreshCw } from 'lucide-react';
-import { api } from '../../lib/api-client';
+import { useQueueAPI } from '../../contexts/APIContext';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { formatDate, formatRelativeTime } from '../../lib/utils';
 
 export default function QueueMonitor() {
+  const queueAPI = useQueueAPI();
   const queryClient = useQueryClient();
 
   const { data: tasks, isLoading } = useQuery({
     queryKey: ['queue-tasks'],
-    queryFn: () => api.getQueueTasks(),
+    queryFn: () => queueAPI.getQueueTasks(),
     refetchInterval: 3000,
   });
 
   const cancelMutation = useMutation({
-    mutationFn: (taskId: string) => api.cancelTask(taskId),
+    mutationFn: (taskId: string) => queueAPI.cancelTask(taskId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['queue-tasks'] });
     },

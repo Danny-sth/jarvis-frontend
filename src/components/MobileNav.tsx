@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import {
   LayoutDashboard,
@@ -14,7 +14,7 @@ import {
   X,
   Users,
 } from 'lucide-react';
-import { useAuthStore } from '../store/auth';
+import { useAuth } from '../hooks/useAuth';
 import { cn } from '../lib/utils';
 
 const navItems = [
@@ -34,11 +34,12 @@ interface MobileNavProps {
 }
 
 export function MobileNav({ isOpen, onClose }: MobileNavProps) {
-  const { logout, username, role } = useAuthStore();
+  const { logout, username, role } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    window.location.href = '/login';
+    navigate('/login');
   };
 
   // Lock body scroll when drawer is open

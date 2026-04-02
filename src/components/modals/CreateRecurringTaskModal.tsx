@@ -1,19 +1,29 @@
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Editor from '@monaco-editor/react';
-import { api } from '../../lib/api-client';
-import { useAuthStore } from '../../store/auth';
-import { useToastStore } from '../../store/toastStore';
-import { Modal } from '../ui/Modal';
+import { useRecurringTasksAPI } from '../../contexts/APIContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../../hooks/useToast';
+import { useFormState } from '../../hooks/forms/useFormState';
+import { useFormValidation } from '../../hooks/forms/useFormValidation';
+import { useFormSubmission } from '../../hooks/forms/useFormSubmission';
+import { FormModal } from '../forms/FormModal';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { Switch } from '../ui/Switch';
-import { Button } from '../ui/Button';
 import { CronPreview } from '../CronPreview';
 
 interface CreateRecurringTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+interface CreateRecurringTaskFormValues {
+  name: string;
+  cronExpression: string;
+  taskType: string;
+  timezone: string;
+  enabled: boolean;
+  taskParamsJson: string;
 }
 
 const TIMEZONES = [
@@ -40,70 +50,62 @@ const DEFAULT_PARAMS: Record<string, any> = {
 };
 
 export function CreateRecurringTaskModal({ isOpen, onClose }: CreateRecurringTaskModalProps) {
-  const [name, setName] = useState('');
-  const [cronExpression, setCronExpression] = useState('0 10 * * *');
-  const [taskType, setTaskType] = useState('message');
-  const [timezone, setTimezone] = useState('UTC');
-  const [enabled, setEnabled] = useState(true);
-  const [taskParamsJson, setTaskParamsJson] = useState(
-    JSON.stringify(DEFAULT_PARAMS.message, null, 2)
-  );
   const [jsonError, setJsonError] = useState('');
 
-  const userId = useAuthStore((state) => state.userId);
-  const showToast = useToastStore((state) => state.show);
-  const queryClient = useQueryClient();
+  const { userId } = useAuth();
+  const recurringTasksAPI = useRecurringTasksAPI();
+  const { show: showToast } = useToast();
 
-  const createMutation = useMutation({
-    mutationFn: (data: any) => api.createRecurring(data),
+  const { values, setValue, reset } = useFormState<CreateRecurringTaskFormValues>({
+    name: '',
+    cronExpression: '0 10 * * *',
+    taskType: 'message',
+    timezone: 'UTC',
+    enabled: true,
+    taskParamsJson: JSON.stringify(DEFAULT_PARAMS.message, null, 2),
+  });
+
+  const { validate } = useFormValidation<CreateRecurringTaskFormValues>({
+    name: { required: true, minLength: 3 },
+    cronExpression: { required: true, minLength: 1 },
+  });
+
+  const { submit, isSubmitting } = useFormSubmission<unknown, any>({
+    mutationFn: (data) => recurringTasksAPI.create(data),
     onSuccess: () => {
-      showToast({ type: 'success', message: 'Recurring task created successfully!' });
-      queryClient.invalidateQueries({ queryKey: ['recurring'] });
-      handleClose();
+      reset();
+      setJsonError('');
+      onClose();
     },
-    onError: (error: any) => {
-      showToast({
-        type: 'error',
-        message: error.message || 'Failed to create recurring task',
-      });
-    },
+    invalidateQueries: ['recurring'],
+    successMessage: 'Recurring task created successfully!',
+    errorMessage: 'Failed to create recurring task',
   });
 
   const handleClose = () => {
-    setName('');
-    setCronExpression('0 10 * * *');
-    setTaskType('message');
-    setTimezone('UTC');
-    setEnabled(true);
-    setTaskParamsJson(JSON.stringify(DEFAULT_PARAMS.message, null, 2));
+    reset();
     setJsonError('');
     onClose();
   };
 
   const handleTaskTypeChange = (newType: string) => {
-    setTaskType(newType);
-    setTaskParamsJson(JSON.stringify(DEFAULT_PARAMS[newType] || {}, null, 2));
+    setValue('taskType', newType);
+    setValue('taskParamsJson', JSON.stringify(DEFAULT_PARAMS[newType] || {}, null, 2));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate name
-    if (name.trim().length < 3) {
-      showToast({ type: 'error', message: 'Name must be at least 3 characters' });
-      return;
-    }
-
-    // Validate cron
-    if (cronExpression.trim().length === 0) {
-      showToast({ type: 'error', message: 'Cron expression is required' });
+    const errors = validate(values);
+    if (errors.length > 0) {
+      submit(null as any, errors);
       return;
     }
 
     // Validate and parse JSON
     let taskParams;
     try {
-      taskParams = JSON.parse(taskParamsJson);
+      taskParams = JSON.parse(values.taskParamsJson);
       setJsonError('');
     } catch (err: any) {
       setJsonError(err.message);
@@ -111,103 +113,94 @@ export function CreateRecurringTaskModal({ isOpen, onClose }: CreateRecurringTas
       return;
     }
 
-    createMutation.mutate({
+    submit({
       user_id: userId!,
-      name: name.trim(),
-      cron_expression: cronExpression.trim(),
-      task_type: taskType,
+      name: values.name.trim(),
+      cron_expression: values.cronExpression.trim(),
+      task_type: values.taskType,
       task_params: taskParams,
-      timezone,
-      enabled,
+      timezone: values.timezone,
+      enabled: values.enabled,
     });
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="CREATE RECURRING TASK" size="lg">
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <FormModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      onSubmit={handleSubmit}
+      title="CREATE RECURRING TASK"
+      size="lg"
+      submitLabel="CREATE TASK"
+      isSubmitting={isSubmitting}
+    >
+      <Input
+        label="NAME"
+        value={values.name}
+        onChange={(e) => setValue('name', e.target.value)}
+        placeholder="Enter task name"
+        required
+        minLength={3}
+        autoFocus
+      />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Input
-          label="NAME"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Enter task name"
+          label="CRON EXPRESSION"
+          value={values.cronExpression}
+          onChange={(e) => setValue('cronExpression', e.target.value)}
+          placeholder="0 10 * * *"
           required
-          minLength={3}
-          autoFocus
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input
-            label="CRON EXPRESSION"
-            value={cronExpression}
-            onChange={(e) => setCronExpression(e.target.value)}
-            placeholder="0 10 * * *"
-            required
-          />
+        <Select
+          label="TIMEZONE"
+          options={TIMEZONES}
+          value={values.timezone}
+          onChange={(value) => setValue('timezone', value as string)}
+        />
+      </div>
 
-          <Select
-            label="TIMEZONE"
-            options={TIMEZONES}
-            value={timezone}
-            onChange={(value) => setTimezone(value as string)}
+      <CronPreview cron={values.cronExpression} timezone={values.timezone} count={5} />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Select
+          label="TASK TYPE"
+          options={TASK_TYPES}
+          value={values.taskType}
+          onChange={(value) => handleTaskTypeChange(value as string)}
+        />
+
+        <Switch
+          label="ENABLED"
+          checked={values.enabled}
+          onChange={(checked) => setValue('enabled', checked)}
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-body font-medium text-jarvis-text-secondary mb-2">
+          TASK PARAMETERS (JSON)
+        </label>
+        <div className="border border-jarvis-cyan/20 rounded-lg overflow-hidden">
+          <Editor
+            height="300px"
+            defaultLanguage="json"
+            value={values.taskParamsJson}
+            onChange={(value) => setValue('taskParamsJson', value || '')}
+            theme="vs-dark"
+            options={{
+              minimap: { enabled: false },
+              fontSize: 14,
+              lineNumbers: 'on',
+              scrollBeyondLastLine: false,
+              automaticLayout: true,
+              tabSize: 2,
+            }}
           />
         </div>
-
-        <CronPreview cron={cronExpression} timezone={timezone} count={5} />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Select
-            label="TASK TYPE"
-            options={TASK_TYPES}
-            value={taskType}
-            onChange={(value) => handleTaskTypeChange(value as string)}
-          />
-
-          <Switch
-            label="ENABLED"
-            checked={enabled}
-            onChange={setEnabled}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-body font-medium text-jarvis-text-secondary mb-2">
-            TASK PARAMETERS (JSON)
-          </label>
-          <div className="border border-jarvis-cyan/20 rounded-lg overflow-hidden">
-            <Editor
-              height="300px"
-              defaultLanguage="json"
-              value={taskParamsJson}
-              onChange={(value) => setTaskParamsJson(value || '')}
-              theme="vs-dark"
-              options={{
-                minimap: { enabled: false },
-                fontSize: 14,
-                lineNumbers: 'on',
-                scrollBeyondLastLine: false,
-                automaticLayout: true,
-                tabSize: 2,
-              }}
-            />
-          </div>
-          {jsonError && (
-            <p className="mt-2 text-sm text-jarvis-orange">{jsonError}</p>
-          )}
-        </div>
-
-        <div className="flex justify-end gap-3 pt-4">
-          <Button type="button" variant="ghost" onClick={handleClose}>
-            CANCEL
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            disabled={createMutation.isPending}
-          >
-            {createMutation.isPending ? 'CREATING...' : 'CREATE TASK'}
-          </Button>
-        </div>
-      </form>
-    </Modal>
+        {jsonError && <p className="mt-2 text-sm text-jarvis-orange">{jsonError}</p>}
+      </div>
+    </FormModal>
   );
 }

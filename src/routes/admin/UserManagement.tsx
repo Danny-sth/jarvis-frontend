@@ -1,18 +1,20 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Edit, Trash2, Search } from 'lucide-react';
-import { api, type User } from '../../lib/api-client';
+import { useUserAPI } from '../../contexts/APIContext';
+import type { User } from '../../lib/api';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
-import { useToastStore } from '../../store/toastStore';
+import { useToast } from '../../hooks/useToast';
 import { formatDate } from '../../lib/utils';
 import { CreateUserModal } from '../../components/modals/CreateUserModal';
 import { EditUserModal } from '../../components/modals/EditUserModal';
 import { DeleteConfirmationModal } from '../../components/modals/DeleteConfirmationModal';
 
 export default function UserManagement() {
+  const userAPI = useUserAPI();
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModal, setEditModal] = useState<{ isOpen: boolean; user: User | null }>({
     isOpen: false,
@@ -24,16 +26,16 @@ export default function UserManagement() {
   });
   const [searchQuery, setSearchQuery] = useState('');
 
-  const showToast = useToastStore((state) => state.show);
+  const { show: showToast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: users, isLoading } = useQuery({
     queryKey: ['users', searchQuery],
-    queryFn: () => api.listUsers(searchQuery || undefined),
+    queryFn: () => userAPI.list(searchQuery || undefined),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => api.deleteUser(id),
+    mutationFn: (id: number) => userAPI.deleteUser(id),
     onSuccess: () => {
       showToast({ type: 'success', message: 'User deleted successfully!' });
       queryClient.invalidateQueries({ queryKey: ['users'] });

@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   ListTodo,
@@ -6,12 +6,11 @@ import {
   Workflow,
   Clock,
   Brain,
-  Settings,
   LogOut,
   BookOpen,
   Users,
 } from 'lucide-react';
-import { useAuthStore } from '../store/auth';
+import { useAuth } from '../hooks/useAuth';
 
 const navItems = [
   { path: '/admin', icon: LayoutDashboard, label: 'DASHBOARD' },
@@ -20,16 +19,16 @@ const navItems = [
   { path: '/admin/workflows', icon: Workflow, label: 'WORKFLOWS' },
   { path: '/admin/recurring', icon: Clock, label: 'RECURRING' },
   { path: '/admin/memory', icon: Brain, label: 'MEMORY' },
-  { path: '/admin/system', icon: Settings, label: 'SYSTEM' },
   { path: '/admin/users', icon: Users, label: 'USERS', adminOnly: true },
 ];
 
 export default function Sidebar() {
-  const { logout, username, role } = useAuthStore();
+  const { logout, username, role } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    window.location.href = '/login';
+    navigate('/login');
   };
 
   return (

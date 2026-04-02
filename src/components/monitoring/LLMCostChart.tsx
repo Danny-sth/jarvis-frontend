@@ -9,16 +9,17 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from 'recharts';
-import { api } from '../../lib/api-client';
+import { useMonitoringAPI } from '../../contexts/APIContext';
 import { Card } from '../ui/Card';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 
 export function LLMCostChart() {
   const isMobile = useIsMobile();
+  const monitoringAPI = useMonitoringAPI();
 
   const { data, isLoading } = useQuery({
     queryKey: ['llm-usage-7d'],
-    queryFn: () => api.getLLMUsage({ period: 'last_7d' }),
+    queryFn: () => monitoringAPI.getLLMUsage({ period: 'last_7d' }),
     refetchInterval: 300000, // 5 minutes
   });
 

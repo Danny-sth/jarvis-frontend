@@ -1,6 +1,6 @@
 import { createPortal } from 'react-dom';
 import { CheckCircle, XCircle, Info, AlertTriangle, X } from 'lucide-react';
-import { useToastStore } from '../../store/toastStore';
+import { useToast } from '../../hooks/useToast';
 import { cn } from '../../lib/utils';
 
 const icons = {
@@ -18,7 +18,7 @@ const styles = {
 };
 
 export function ToastContainer() {
-  const { toasts, remove } = useToastStore();
+  const { toasts, remove } = useToast();
 
   if (toasts.length === 0) return null;
 

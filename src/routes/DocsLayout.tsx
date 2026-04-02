@@ -2,13 +2,16 @@ import { Link, Outlet, NavLink, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { BookOpen, Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { api, type DocCategory } from '../lib/api-client';
+import type { DocCategory } from '../lib/api';
+import { useDocsAPI } from '../contexts/APIContext';
 import { useIsMobile } from '../hooks/useMediaQuery';
 
 export default function DocsLayout() {
+  const docsAPI = useDocsAPI();
+
   const { data: docs, isLoading } = useQuery({
     queryKey: ['docs-list'],
-    queryFn: () => api.listDocs(),
+    queryFn: () => docsAPI.list(),
   });
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

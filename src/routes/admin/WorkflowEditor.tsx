@@ -1,33 +1,34 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Play, Trash2 } from 'lucide-react';
-import { api } from '../../lib/api-client';
+import { useWorkflowAPI } from '../../contexts/APIContext';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { useAuthStore } from '../../store/auth';
+import { useAuth } from '../../hooks/useAuth';
 import { formatDate } from '../../lib/utils';
 import { CreateWorkflowModal } from '../../components/modals/CreateWorkflowModal';
 
 export default function WorkflowEditor() {
+  const workflowAPI = useWorkflowAPI();
   const [createModalOpen, setCreateModalOpen] = useState(false);
-  const { userId } = useAuthStore();
+  const { userId } = useAuth();
   const queryClient = useQueryClient();
 
   const { data: workflows, isLoading } = useQuery({
     queryKey: ['workflows', userId],
-    queryFn: () => api.listWorkflows(userId!),
+    queryFn: () => workflowAPI.listWorkflows(userId!),
     enabled: !!userId,
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => api.deleteWorkflow(id),
+    mutationFn: (id: string) => workflowAPI.deleteWorkflow(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workflows', userId] });
     },
   });
 
   const runMutation = useMutation({
-    mutationFn: (id: string) => api.runWorkflow(id),
+    mutationFn: (id: string) => workflowAPI.runWorkflow(id),
   });
 
   return (

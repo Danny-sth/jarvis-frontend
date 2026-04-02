@@ -1,23 +1,24 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Search, Brain, Plus } from 'lucide-react';
-import { api } from '../../lib/api-client';
+import { useCortexAPI } from '../../contexts/APIContext';
 import { Card } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
-import { useAuthStore } from '../../store/auth';
+import { useAuth } from '../../hooks/useAuth';
 import { formatDate } from '../../lib/utils';
 import { StoreMemoryModal } from '../../components/modals/StoreMemoryModal';
 
 export default function MemoryBrowser() {
-  const { userId } = useAuthStore();
+  const { userId } = useAuth();
+  const cortexAPI = useCortexAPI();
   const [query, setQuery] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [storeModalOpen, setStoreModalOpen] = useState(false);
 
   const { data: results, isLoading } = useQuery({
     queryKey: ['memory-search', userId, searchQuery],
-    queryFn: () => api.searchMemory(searchQuery, userId!, 20),
+    queryFn: () => cortexAPI.searchMemory(searchQuery, userId!, 20),
     enabled: !!userId && !!searchQuery,
   });
 

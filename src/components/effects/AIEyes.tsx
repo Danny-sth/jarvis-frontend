@@ -1,144 +1,329 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { useRef, useEffect } from 'react';
+import { motion, useMotionValue, useSpring, useAnimationFrame } from 'framer-motion';
 
 export function AIEyes() {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [isVisible, setIsVisible] = useState(false);
-  const rafRef = useRef<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mouseX = useRef(window.innerWidth / 2);
+  const mouseY = useRef(window.innerHeight / 2);
 
-  // Cache eye positions (calculate once on mount)
-  const leftEyePos = useRef({ x: 0, y: 0 });
-  const rightEyePos = useRef({ x: 0, y: 0 });
-  const leftEyeRef = useRef<HTMLDivElement>(null);
-  const rightEyeRef = useRef<HTMLDivElement>(null);
+  // Motion values for eye rotation (NO re-renders!)
+  const leftEyeRotation = useMotionValue(0);
+  const rightEyeRotation = useMotionValue(0);
 
-  // Cache eye positions after mount
+  // Spring physics for smooth following
+  const leftEyeSpring = useSpring(leftEyeRotation, {
+    stiffness: 120,
+    damping: 15,
+    mass: 0.3,
+  });
+  const rightEyeSpring = useSpring(rightEyeRotation, {
+    stiffness: 120,
+    damping: 15,
+    mass: 0.3,
+  });
+
+  // Eye positions (fixed at top center)
+  const eyeGap = 120;
+  const eyeY = 80;
+
+  // Mouse tracking WITHOUT re-render
   useEffect(() => {
-    const updateEyePositions = () => {
-      if (leftEyeRef.current) {
-        const rect = leftEyeRef.current.getBoundingClientRect();
-        leftEyePos.current = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-      }
-      if (rightEyeRef.current) {
-        const rect = rightEyeRef.current.getBoundingClientRect();
-        rightEyePos.current = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-      }
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseX.current = e.clientX;
+      mouseY.current = e.clientY;
     };
 
-    updateEyePositions();
-    window.addEventListener('resize', updateEyePositions);
-    return () => window.removeEventListener('resize', updateEyePositions);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Throttled mouse tracking with RAF
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (rafRef.current) return;
+  // Update eye rotations every frame (smooth 60fps)
+  useAnimationFrame(() => {
+    const centerX = window.innerWidth / 2;
+    const leftEyeX = centerX - eyeGap;
+    const rightEyeX = centerX + eyeGap;
 
-    rafRef.current = requestAnimationFrame(() => {
-      setMousePos({ x: e.clientX, y: e.clientY });
-      rafRef.current = null;
-    });
-  }, []);
+    // Calculate angles
+    const leftDx = mouseX.current - leftEyeX;
+    const leftDy = mouseY.current - eyeY;
+    const leftAngle = Math.atan2(leftDy, leftDx) * (180 / Math.PI);
 
-  useEffect(() => {
-    setTimeout(() => setIsVisible(true), 500);
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [handleMouseMove]);
+    const rightDx = mouseX.current - rightEyeX;
+    const rightDy = mouseY.current - eyeY;
+    const rightAngle = Math.atan2(rightDy, rightDx) * (180 / Math.PI);
 
-  // Calculate eye rotation (MORE RESPONSIVE - 0.35 instead of 0.05)
-  const calculateEyeRotation = (eyeX: number, eyeY: number) => {
-    const dx = mousePos.x - eyeX;
-    const dy = mousePos.y - eyeY;
-    const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
-    return angle * 0.35; // 🔥 7x more responsive than before (was 0.05)
-  };
+    // Update motion values (spring will smooth it)
+    leftEyeRotation.set(leftAngle);
+    rightEyeRotation.set(rightAngle);
+  });
 
   return (
     <motion.div
-      className="fixed top-4 left-1/2 -translate-x-1/2 z-[5] pointer-events-none"
+      ref={containerRef}
+      className="fixed top-0 left-1/2 -translate-x-1/2 z-[5] pointer-events-none"
       initial={{ opacity: 0 }}
-      animate={{ opacity: isVisible ? 0.4 : 0 }} // Slightly more visible
-      transition={{ duration: 1 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1.5, delay: 0.5 }}
     >
-      {/* Eyes container with 160px gap */}
-      <div className="flex items-center gap-40">
-        {/* Left Eye */}
-        <div ref={leftEyeRef} className="relative">
+      {/* AI Helmet Silhouette - Red/Yellow/Black theme */}
+      <svg
+        width="500"
+        height="350"
+        viewBox="0 0 500 350"
+        className="absolute top-0 left-1/2 -translate-x-1/2"
+      >
+        <defs>
+          {/* Red glow gradient */}
+          <radialGradient id="redGlow" cx="50%" cy="35%">
+            <stop offset="0%" stopColor="rgba(220, 38, 38, 0.4)" />
+            <stop offset="50%" stopColor="rgba(239, 68, 68, 0.2)" />
+            <stop offset="100%" stopColor="transparent" />
+          </radialGradient>
+
+          {/* Yellow accent gradient */}
+          <radialGradient id="yellowGlow" cx="50%" cy="50%">
+            <stop offset="0%" stopColor="rgba(234, 179, 8, 0.25)" />
+            <stop offset="100%" stopColor="transparent" />
+          </radialGradient>
+
+          <filter id="helmetBlur">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="8" />
+          </filter>
+        </defs>
+
+        {/* Background glow - red */}
+        <ellipse
+          cx="250"
+          cy="140"
+          rx="170"
+          ry="190"
+          fill="url(#redGlow)"
+          filter="url(#helmetBlur)"
+          opacity="0.7"
+        />
+
+        {/* Helmet outline - subtle red */}
+        <motion.ellipse
+          cx="250"
+          cy="140"
+          rx="160"
+          ry="180"
+          fill="none"
+          stroke="rgba(220, 38, 38, 0.3)"
+          strokeWidth="2"
+          animate={{
+            strokeOpacity: [0.2, 0.4, 0.2],
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
+
+        {/* Inner helmet detail - yellow accents */}
+        <motion.ellipse
+          cx="250"
+          cy="140"
+          rx="135"
+          ry="155"
+          fill="url(#yellowGlow)"
+          opacity="0.2"
+          animate={{
+            scale: [1, 1.02, 1],
+            opacity: [0.15, 0.25, 0.15],
+          }}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
+
+        {/* Visor slit - dark horizontal line */}
+        <rect
+          x="80"
+          y="120"
+          width="340"
+          height="50"
+          rx="25"
+          fill="rgba(0, 0, 0, 0.4)"
+          opacity="0.3"
+        />
+
+        {/* Side helmet details - left */}
+        <motion.path
+          d="M 90 120 Q 80 140 90 160"
+          stroke="rgba(220, 38, 38, 0.2)"
+          strokeWidth="3"
+          fill="none"
+          animate={{
+            strokeOpacity: [0.1, 0.3, 0.1],
+          }}
+          transition={{
+            duration: 2.5,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
+
+        {/* Side helmet details - right */}
+        <motion.path
+          d="M 410 120 Q 420 140 410 160"
+          stroke="rgba(220, 38, 38, 0.2)"
+          strokeWidth="3"
+          fill="none"
+          animate={{
+            strokeOpacity: [0.1, 0.3, 0.1],
+          }}
+          transition={{
+            duration: 2.5,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            delay: 0.5,
+          }}
+        />
+      </svg>
+
+      {/* Eyes - Red/Yellow with proper tracking */}
+      <div className="relative pt-20">
+        <div className="flex items-center justify-center gap-60">
+          {/* Left Eye */}
           <motion.div
-            className="w-16 h-4 bg-gradient-to-r from-transparent via-cyan-300 to-transparent rounded-full relative overflow-hidden shadow-2xl"
+            className="w-28 h-7 relative"
             style={{
-              transform: `rotate(${calculateEyeRotation(leftEyePos.current.x, leftEyePos.current.y)}deg)`,
-              filter: 'drop-shadow(0 0 15px rgba(34, 211, 238, 0.8)) drop-shadow(0 0 30px rgba(34, 211, 238, 0.5))',
-            }}
-            animate={{
-              filter: [
-                'drop-shadow(0 0 15px rgba(34, 211, 238, 0.8))',
-                'drop-shadow(0 0 20px rgba(34, 211, 238, 1))',
-                'drop-shadow(0 0 15px rgba(34, 211, 238, 0.8))',
-              ],
-            }}
-            transition={{
-              duration: 200, // Faster transition
-              ease: [0.4, 0, 0.2, 1], // Custom easing
+              rotate: leftEyeSpring,
             }}
           >
-            {/* Inner glow */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-60" />
+            {/* Eye outer glow - red */}
+            <div
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: 'radial-gradient(ellipse at center, rgba(220, 38, 38, 0.9) 0%, rgba(220, 38, 38, 0.3) 50%, transparent 70%)',
+                filter: 'blur(16px)',
+              }}
+            />
 
-            {/* Center bright line */}
-            <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-white opacity-90 -translate-y-1/2" />
+            {/* Eye main body - red to yellow gradient */}
+            <div
+              className="absolute inset-0 rounded-full relative overflow-hidden"
+              style={{
+                background: 'linear-gradient(90deg, rgba(220, 38, 38, 1) 0%, rgba(234, 179, 8, 1) 50%, rgba(220, 38, 38, 1) 100%)',
+                boxShadow: '0 0 25px rgba(220, 38, 38, 0.9), 0 0 50px rgba(220, 38, 38, 0.5), inset 0 0 15px rgba(234, 179, 8, 0.7)',
+              }}
+            >
+              {/* Inner white hot spot */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-75" />
 
-            {/* Scanning line animation */}
+              {/* Center bright line */}
+              <div className="absolute top-1/2 left-0 right-0 h-[3px] bg-white opacity-95 -translate-y-1/2 shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+
+              {/* Scanning line animation - yellow */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-b from-transparent via-yellow-300 to-transparent opacity-50"
+                animate={{ translateY: ['-100%', '100%'] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+              />
+
+              {/* Edge highlights */}
+              <div className="absolute inset-0 rounded-full border-2 border-white/20" />
+            </div>
+
+            {/* Pulsing animation overlay */}
             <motion.div
-              className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-200 to-transparent opacity-30"
-              animate={{ translateY: ['-100%', '100%'] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: 'radial-gradient(ellipse at center, rgba(234, 179, 8, 0.7) 0%, transparent 60%)',
+              }}
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.5, 0.8, 0.5],
+              }}
+              transition={{
+                duration: 1.2,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+            />
+          </motion.div>
+
+          {/* Right Eye - identical */}
+          <motion.div
+            className="w-28 h-7 relative"
+            style={{
+              rotate: rightEyeSpring,
+            }}
+          >
+            {/* Eye outer glow - red */}
+            <div
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: 'radial-gradient(ellipse at center, rgba(220, 38, 38, 0.9) 0%, rgba(220, 38, 38, 0.3) 50%, transparent 70%)',
+                filter: 'blur(16px)',
+              }}
+            />
+
+            {/* Eye main body - red to yellow gradient */}
+            <div
+              className="absolute inset-0 rounded-full relative overflow-hidden"
+              style={{
+                background: 'linear-gradient(90deg, rgba(220, 38, 38, 1) 0%, rgba(234, 179, 8, 1) 50%, rgba(220, 38, 38, 1) 100%)',
+                boxShadow: '0 0 25px rgba(220, 38, 38, 0.9), 0 0 50px rgba(220, 38, 38, 0.5), inset 0 0 15px rgba(234, 179, 8, 0.7)',
+              }}
+            >
+              {/* Inner white hot spot */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-75" />
+
+              {/* Center bright line */}
+              <div className="absolute top-1/2 left-0 right-0 h-[3px] bg-white opacity-95 -translate-y-1/2 shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+
+              {/* Scanning line animation - yellow */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-b from-transparent via-yellow-300 to-transparent opacity-50"
+                animate={{ translateY: ['-100%', '100%'] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+              />
+
+              {/* Edge highlights */}
+              <div className="absolute inset-0 rounded-full border-2 border-white/20" />
+            </div>
+
+            {/* Pulsing animation overlay */}
+            <motion.div
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: 'radial-gradient(ellipse at center, rgba(234, 179, 8, 0.7) 0%, transparent 60%)',
+              }}
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.5, 0.8, 0.5],
+              }}
+              transition={{
+                duration: 1.2,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
             />
           </motion.div>
         </div>
 
-        {/* Right Eye (identical) */}
-        <div ref={rightEyeRef} className="relative">
-          <motion.div
-            className="w-16 h-4 bg-gradient-to-r from-transparent via-cyan-300 to-transparent rounded-full relative overflow-hidden shadow-2xl"
-            style={{
-              transform: `rotate(${calculateEyeRotation(rightEyePos.current.x, rightEyePos.current.y)}deg)`,
-              filter: 'drop-shadow(0 0 15px rgba(34, 211, 238, 0.8)) drop-shadow(0 0 30px rgba(34, 211, 238, 0.5))',
-            }}
-            animate={{
-              filter: [
-                'drop-shadow(0 0 15px rgba(34, 211, 238, 0.8))',
-                'drop-shadow(0 0 20px rgba(34, 211, 238, 1))',
-                'drop-shadow(0 0 15px rgba(34, 211, 238, 0.8))',
-              ],
-            }}
-            transition={{
-              duration: 200,
-              ease: [0.4, 0, 0.2, 1],
-            }}
-          >
-            {/* Inner glow */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-60" />
-
-            {/* Center bright line */}
-            <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-white opacity-90 -translate-y-1/2" />
-
-            {/* Scanning line animation */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-200 to-transparent opacity-30"
-              animate={{ translateY: ['-100%', '100%'] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-            />
-          </motion.div>
-        </div>
+        {/* Connecting energy beam - red/yellow */}
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-[3px] -z-10"
+          style={{
+            background: 'linear-gradient(90deg, transparent 0%, rgba(220, 38, 38, 0.5) 20%, rgba(234, 179, 8, 0.6) 50%, rgba(220, 38, 38, 0.5) 80%, transparent 100%)',
+            boxShadow: '0 0 15px rgba(220, 38, 38, 0.6)',
+          }}
+          animate={{
+            opacity: [0.6, 0.9, 0.6],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
       </div>
-
-      {/* Connecting light beam between eyes */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-[2px] bg-gradient-to-r from-transparent via-cyan-400/30 to-transparent -z-10" />
     </motion.div>
   );
 }

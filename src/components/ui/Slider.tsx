@@ -1,6 +1,6 @@
 import { cn } from '../../lib/utils';
 
-interface SliderProps {
+export interface SliderProps {
   value: number;
   onChange: (value: number) => void;
   min: number;

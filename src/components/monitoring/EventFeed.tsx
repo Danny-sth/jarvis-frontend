@@ -1,46 +1,21 @@
 import { useQuery } from '@tanstack/react-query';
-import { api, type MonitoringEvent } from '../../lib/api-client';
+import type { MonitoringEvent } from '../../lib/api';
+import { useMonitoringAPI } from '../../contexts/APIContext';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { formatDate } from '../../lib/utils';
 import { useIsMobile } from '../../hooks/useMediaQuery';
+import { getStatusVariant, getTypeVariant } from '../../lib/config/eventMappings';
 
 export function EventFeed() {
   const isMobile = useIsMobile();
+  const monitoringAPI = useMonitoringAPI();
 
   const { data, isLoading } = useQuery({
     queryKey: ['monitoring-events'],
-    queryFn: () => api.getMonitoringEvents({ limit: 20 }),
+    queryFn: () => monitoringAPI.getEvents({ limit: 20 }),
     refetchInterval: 15000, // 15 seconds
   });
-
-  const getStatusVariant = (status: string): 'success' | 'error' | 'warning' | 'default' => {
-    switch (status) {
-      case 'success':
-        return 'success';
-      case 'error':
-        return 'error';
-      case 'timeout':
-        return 'warning';
-      default:
-        return 'default';
-    }
-  };
-
-  const getTypeVariant = (type: string): 'success' | 'error' | 'warning' | 'info' | 'default' => {
-    switch (type) {
-      case 'api_request':
-        return 'info';
-      case 'tool_execution':
-        return 'default';
-      case 'worker_task':
-        return 'warning';
-      case 'external_service':
-        return 'success';
-      default:
-        return 'default';
-    }
-  };
 
   if (isLoading) {
     return (

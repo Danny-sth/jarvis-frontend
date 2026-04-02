@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Clock } from 'lucide-react';
-import { api } from '../lib/api-client';
+import { useRecurringTasksAPI } from '../contexts/APIContext';
 import { Skeleton } from './ui/Skeleton';
 
 interface CronPreviewProps {
@@ -10,9 +10,11 @@ interface CronPreviewProps {
 }
 
 export function CronPreview({ cron, timezone, count = 5 }: CronPreviewProps) {
+  const recurringTasksAPI = useRecurringTasksAPI();
+
   const { data, isLoading, error } = useQuery({
     queryKey: ['cron-preview', cron, timezone, count],
-    queryFn: () => api.previewCron(cron, timezone, count),
+    queryFn: () => recurringTasksAPI.previewCron(cron, timezone, count),
     enabled: cron.length > 0 && timezone.length > 0,
     retry: false,
     staleTime: 0, // Always refetch when inputs change

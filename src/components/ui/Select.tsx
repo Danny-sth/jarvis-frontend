@@ -2,12 +2,12 @@ import { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
-interface SelectOption {
+export interface SelectOption {
   value: string;
   label: string;
 }
 
-interface SelectProps {
+export interface SelectProps {
   options: SelectOption[];
   value: string | string[];
   onChange: (value: string | string[]) => void;
