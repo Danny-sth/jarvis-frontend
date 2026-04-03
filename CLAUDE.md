@@ -30,7 +30,7 @@
 # Build + Deploy + Verify
 npm run build && \
 rsync -avz --delete dist/ root@90.156.230.49:/opt/jarvis/jarvis-gateway/static/ && \
-ssh root@90.156.230.49 "systemctl restart jarvis-gateway && curl -I http://localhost:8082/"
+ssh root@90.156.230.49 "systemctl restart jarvis-gateway && curl -I https://on-za-menya.online/"
 ```
 
 ## VPS Access
@@ -45,10 +45,13 @@ journalctl -u jarvis-gateway -f   # Check gateway logs
 ## Architecture
 
 ```
-User Browser :8082
+User Browser
      ↓
-jarvis-gateway :8082
+https://on-za-menya.online (TLS :443)
+     ↓
+jarvis-gateway :443 (Go + TLS)
      ├── Static Files (/opt/jarvis/jarvis-gateway/static/)
+     ├── HTTP :80 → HTTPS redirect
      └── API Proxy (/api/* → :8081)
           ↓
      Jarvis Backend :8081 (FastAPI)
@@ -201,14 +204,14 @@ npm run preview          # Preview production build locally
 ```bash
 # Full deploy pipeline
 npm run build && \
-scp -r dist/* root@90.156.230.49:/var/www/jarvis-frontend/ && \
+rsync -avz --delete dist/ root@90.156.230.49:/opt/jarvis/jarvis-gateway/static/ && \
 ssh root@90.156.230.49 "systemctl restart jarvis-gateway"
 ```
 
 ### 4. Verify
 ```bash
 # Check deployed version
-curl -I http://90.156.230.49:8082/admin
+curl -I https://on-za-menya.online/admin
 
 # Check jarvis-gateway logs
 ssh root@90.156.230.49 "journalctl -u jarvis-gateway -n 50 --no-pager"
@@ -290,7 +293,7 @@ npm run preview          # Preview prod build locally
 npm run lint             # Lint TypeScript/ESLint
 
 # Deploy
-scp -r dist/* root@90.156.230.49:/var/www/jarvis-frontend/
+rsync -avz --delete dist/ root@90.156.230.49:/opt/jarvis/jarvis-gateway/static/
 ssh root@90.156.230.49 "systemctl restart jarvis-gateway"
 
 # Check logs
@@ -303,7 +306,7 @@ ssh root@90.156.230.49 "journalctl -u jarvis.service -f"
 | Service | Port | Path | Purpose |
 |---------|------|------|---------|
 | `jarvis.service` | 8081 | `/opt/jarvis/current` | Python AI Agent (FastAPI) |
-| `jarvis-gateway.service` | 8082 | `/opt/jarvis/jarvis-gateway` | Go API proxy + Static files + Telegram |
+| `jarvis-gateway.service` | 443 (TLS) | `/opt/jarvis/jarvis-gateway` | Go API proxy + Static files + TLS + HTTP redirect |
 
 ## Deployment Architecture
 
@@ -316,7 +319,7 @@ rsync dist/ → /opt/jarvis/jarvis-gateway/static/
    ↓
 systemctl restart jarvis-gateway
    ↓
-VERIFY: curl -I http://90.156.230.49:8082/
+VERIFY: curl -I https://on-za-menya.online/
 ```
 
 ## Detailed Docs
