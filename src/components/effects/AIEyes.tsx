@@ -129,11 +129,11 @@ export function AIEyes() {
         />
       </svg>
 
-      {/* Eyes - Iron Man style trapezoidal glowing slits */}
+      {/* Eyes - Iron Man style trapezoidal glowing slits - BIGGER AND BRIGHTER */}
       <div className="relative pt-20">
         <div className="flex items-center justify-center gap-48">
-          <Eye className="w-44 h-11" />
-          <Eye className="w-44 h-11" />
+          <Eye className="w-52 h-14" />
+          <Eye className="w-52 h-14" />
         </div>
 
         {/* Connecting energy beam - blue */}

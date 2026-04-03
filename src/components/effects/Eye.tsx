@@ -11,13 +11,13 @@ interface EyeProps {
 export function Eye({ className = '' }: EyeProps) {
   return (
     <div className={`relative ${className}`}>
-      {/* Outer glow - bright blue */}
+      {/* Outer glow - SUPER bright blue */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse 100% 80% at center, rgba(96, 165, 250, 0.9) 0%, rgba(59, 130, 246, 0.6) 40%, transparent 70%)',
-          filter: 'blur(20px)',
+            'radial-gradient(ellipse 120% 100% at center, rgba(59, 130, 246, 1) 0%, rgba(96, 165, 250, 0.9) 30%, rgba(59, 130, 246, 0.7) 60%, transparent 80%)',
+          filter: 'blur(25px)',
         }}
       />
 
@@ -28,13 +28,15 @@ export function Eye({ className = '' }: EyeProps) {
         style={{ filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.8))' }}
       >
         <defs>
-          {/* Bright blue gradient - Iron Man style */}
+          {/* SUPER bright blue gradient - Iron Man style */}
           <linearGradient id="eyeGlow" x1="0%" y1="50%" x2="100%" y2="50%">
-            <stop offset="0%" stopColor="rgba(59, 130, 246, 0.7)" />
-            <stop offset="20%" stopColor="rgba(96, 165, 250, 1)" />
-            <stop offset="50%" stopColor="rgba(147, 197, 253, 1)" />
-            <stop offset="80%" stopColor="rgba(96, 165, 250, 1)" />
-            <stop offset="100%" stopColor="rgba(59, 130, 246, 0.7)" />
+            <stop offset="0%" stopColor="rgba(59, 130, 246, 0.9)" />
+            <stop offset="15%" stopColor="rgba(96, 165, 250, 1)" />
+            <stop offset="30%" stopColor="rgba(147, 197, 253, 1)" />
+            <stop offset="50%" stopColor="rgba(191, 219, 254, 1)" />
+            <stop offset="70%" stopColor="rgba(147, 197, 253, 1)" />
+            <stop offset="85%" stopColor="rgba(96, 165, 250, 1)" />
+            <stop offset="100%" stopColor="rgba(59, 130, 246, 0.9)" />
           </linearGradient>
         </defs>
 
@@ -46,12 +48,12 @@ export function Eye({ className = '' }: EyeProps) {
         />
       </svg>
 
-      {/* Inner bright core - blue */}
+      {/* Inner SUPER bright core - blue with white center */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            'linear-gradient(90deg, transparent 0%, rgba(96, 165, 250, 0.9) 20%, rgba(147, 197, 253, 1) 50%, rgba(96, 165, 250, 0.9) 80%, transparent 100%)',
+            'linear-gradient(90deg, transparent 0%, rgba(96, 165, 250, 1) 15%, rgba(147, 197, 253, 1) 35%, rgba(255, 255, 255, 1) 50%, rgba(147, 197, 253, 1) 65%, rgba(96, 165, 250, 1) 85%, transparent 100%)',
           clipPath: 'polygon(8% 50%, 25% 20%, 75% 20%, 92% 50%, 75% 80%, 25% 80%)',
         }}
       />
