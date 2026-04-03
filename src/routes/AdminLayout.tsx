@@ -6,7 +6,6 @@ import { MobileNav } from '../components/MobileNav';
 import { useIsMobile } from '../hooks/useMediaQuery';
 import { AnimatedBackground } from '../components/effects/AnimatedBackground';
 import { ScanLines } from '../components/effects/ScanLines';
-import { AIEyes } from '../components/effects/AIEyes';
 
 export default function AdminLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -17,7 +16,6 @@ export default function AdminLayout() {
       {/* Animated Background Effects */}
       <AnimatedBackground />
       <ScanLines />
-      <AIEyes />
 
       {/* Desktop Sidebar */}
       {!isMobile && <Sidebar />}
