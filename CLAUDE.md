@@ -29,33 +29,29 @@
 ```bash
 # Build + Deploy + Verify
 npm run build && \
-scp -r dist/* root@90.156.230.49:/var/www/html/ && \
-ssh root@90.156.230.49 "systemctl reload nginx && curl -I http://localhost/"
+rsync -avz --delete dist/ root@90.156.230.49:/opt/jarvis/jarvis-gateway/static/ && \
+ssh root@90.156.230.49 "systemctl restart jarvis-gateway && curl -I http://localhost:8082/"
 ```
 
 ## VPS Access
 
 ```bash
 ssh root@90.156.230.49     # SSH
-ls -la /var/www/html       # Check deployed files (nginx root)
-systemctl reload nginx     # Reload nginx after deploy
-tail -f /var/log/nginx/error.log  # Check for errors
+ls -la /opt/jarvis/jarvis-gateway/static/  # Check deployed files
+systemctl restart jarvis-gateway  # Restart gateway after deploy
+journalctl -u jarvis-gateway -f   # Check gateway logs
 ```
 
 ## Architecture
 
 ```
-User Browser
-     ↓
-nginx :443 (on-za-menya.online)
-     ↓
-Static Files (/var/www/jarvis-frontend)
-     ↓
-API Calls (/api/*)
+User Browser :8082
      ↓
 jarvis-gateway :8082
-     ↓
-Jarvis Backend :8081
+     ├── Static Files (/opt/jarvis/jarvis-gateway/static/)
+     └── API Proxy (/api/* → :8081)
+          ↓
+     Jarvis Backend :8081 (FastAPI)
 ```
 
 ## Critical Rules
@@ -206,23 +202,23 @@ npm run preview          # Preview production build locally
 # Full deploy pipeline
 npm run build && \
 scp -r dist/* root@90.156.230.49:/var/www/jarvis-frontend/ && \
-ssh root@90.156.230.49 "systemctl reload nginx"
+ssh root@90.156.230.49 "systemctl restart jarvis-gateway"
 ```
 
 ### 4. Verify
 ```bash
 # Check deployed version
-curl -I https://on-za-menya.online/admin
+curl -I http://90.156.230.49:8082/admin
 
-# Check nginx logs
-ssh root@90.156.230.49 "tail -n 50 /var/log/nginx/access.log"
+# Check jarvis-gateway logs
+ssh root@90.156.230.49 "journalctl -u jarvis-gateway -n 50 --no-pager"
 ```
 
 ## API Integration
 
 ### Base URL
 - **Local Dev**: `/api` (proxied by Vite to localhost:8081)
-- **Production**: `/api` (proxied by nginx to jarvis-gateway:8082)
+- **Production**: `/api` (proxied by jarvis-gateway to jarvis:8081)
 
 ### Authentication
 - Bearer token stored in `localStorage` as `jarvis_token`
@@ -295,11 +291,11 @@ npm run lint             # Lint TypeScript/ESLint
 
 # Deploy
 scp -r dist/* root@90.156.230.49:/var/www/jarvis-frontend/
-ssh root@90.156.230.49 "systemctl reload nginx"
+ssh root@90.156.230.49 "systemctl restart jarvis-gateway"
 
 # Check logs
-ssh root@90.156.230.49 "tail -f /var/log/nginx/access.log"
-ssh root@90.156.230.49 "tail -f /var/log/nginx/error.log"
+ssh root@90.156.230.49 "journalctl -u jarvis-gateway -f"
+ssh root@90.156.230.49 "journalctl -u jarvis.service -f"
 ```
 
 ## Backend Services
@@ -307,8 +303,7 @@ ssh root@90.156.230.49 "tail -f /var/log/nginx/error.log"
 | Service | Port | Path | Purpose |
 |---------|------|------|---------|
 | `jarvis.service` | 8081 | `/opt/jarvis/current` | Python AI Agent (FastAPI) |
-| `jarvis-gateway.service` | 8082 | - | Go reverse proxy + Telegram |
-| `nginx` | 443 | - | Static files + API proxy |
+| `jarvis-gateway.service` | 8082 | `/opt/jarvis/jarvis-gateway` | Go API proxy + Static files + Telegram |
 
 ## Deployment Architecture
 
@@ -317,11 +312,11 @@ Git Push
    ↓
 Local Build (npm run build)
    ↓
-SCP dist/ → /var/www/jarvis-frontend/
+rsync dist/ → /opt/jarvis/jarvis-gateway/static/
    ↓
-systemctl reload nginx
+systemctl restart jarvis-gateway
    ↓
-VERIFY: curl -I https://on-za-menya.online/admin
+VERIFY: curl -I http://90.156.230.49:8082/
 ```
 
 ## Detailed Docs
