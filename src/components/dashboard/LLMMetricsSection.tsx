@@ -36,29 +36,33 @@ export function LLMMetricsSection() {
   return (
     <div className="space-y-6">
       <div>
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-display text-jarvis-cyan">LLM METRICS</h2>
+        {/* Header with period selector */}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-display text-jarvis-cyan">LLM METRICS</h2>
+          <div className="flex gap-2">
+            {PERIODS.map((p) => (
+              <button
+                key={p.value}
+                onClick={() => setPeriod(p.value)}
+                className={`px-5 py-2 text-base font-mono rounded-lg transition-all ${
+                  period === p.value
+                    ? 'bg-jarvis-cyan text-black font-bold shadow-lg shadow-jarvis-cyan/50'
+                    : 'bg-jarvis-bg-surface text-jarvis-text-secondary hover:bg-jarvis-cyan/20 border-2 border-jarvis-cyan/50'
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-lg font-display text-jarvis-gold font-bold">
-              {currentPeriod?.fullLabel}
+        </div>
+
+        {/* PERIOD BANNER */}
+        <div className="bg-jarvis-bg-surface border-2 border-jarvis-gold/50 rounded-lg px-6 py-3 mb-6">
+          <div className="flex items-center justify-between">
+            <span className="text-jarvis-text-secondary font-body">PERIOD:</span>
+            <span className="text-2xl font-display text-jarvis-gold font-bold">
+              {currentPeriod?.fullLabel?.toUpperCase()}
             </span>
-            <div className="flex gap-2">
-              {PERIODS.map((p) => (
-                <button
-                  key={p.value}
-                  onClick={() => setPeriod(p.value)}
-                  className={`px-4 py-2 text-sm font-mono rounded-lg transition-colors ${
-                    period === p.value
-                      ? 'bg-jarvis-cyan text-jarvis-bg-dark font-bold'
-                      : 'bg-jarvis-bg-card text-jarvis-text-secondary hover:text-jarvis-cyan border-2 border-jarvis-cyan/40'
-                  }`}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
