@@ -59,19 +59,19 @@ export function QueueStatsCard() {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
       {stats.map((stat) => (
         <Card key={stat.label}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-body text-jarvis-text-muted mb-1">
+              <p className="text-sm font-body text-jarvis-text-muted mb-2">
                 {stat.label}
               </p>
-              <p className={`text-2xl font-display font-bold ${stat.color}`}>
+              <p className={`text-3xl font-display font-bold ${stat.color}`}>
                 {stat.value.toLocaleString()}
               </p>
             </div>
-            <stat.icon className={`w-8 h-8 ${stat.color} opacity-20`} />
+            <stat.icon className={`w-10 h-10 ${stat.color} opacity-20`} />
           </div>
         </Card>
       ))}

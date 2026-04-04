@@ -17,242 +17,97 @@ export function AnimatedBackground() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Cyberpunk color palette
-    const colors = {
-      cyan: '#00ffff',
-      magenta: '#ff00ff',
-      orange: '#ff6600',
-      red: '#ff0040',
-      yellow: '#ffff00',
-    };
-
-    // Hexagonal grid parameters
-    const hexSize = 30;
-    const hexHeight = hexSize * Math.sqrt(3);
-
-    // Data streams (vertical flowing lines)
-    interface DataStream {
-      x: number;
-      chars: { y: number; char: string; opacity: number; speed: number }[];
-      color: string;
-    }
-
-    const streams: DataStream[] = [];
-    const streamCount = Math.floor(canvas.width / 40);
-
-    for (let i = 0; i < streamCount; i++) {
-      const streamColors = [colors.cyan, colors.magenta, colors.orange];
-      streams.push({
-        x: Math.random() * canvas.width,
-        chars: Array.from({ length: Math.floor(Math.random() * 15) + 5 }, (_, idx) => ({
-          y: Math.random() * canvas.height,
-          char: String.fromCharCode(0x30A0 + Math.random() * 96), // Katakana
-          opacity: 1 - idx * 0.06,
-          speed: Math.random() * 2 + 1,
-        })),
-        color: streamColors[Math.floor(Math.random() * streamColors.length)],
-      });
-    }
-
-    // Glitch lines
-    interface GlitchLine {
-      y: number;
-      width: number;
-      height: number;
-      duration: number;
-      timer: number;
-    }
-    let glitchLines: GlitchLine[] = [];
-
-    // Circuit nodes
-    interface CircuitNode {
+    // Floating particles
+    interface Particle {
       x: number;
       y: number;
-      connections: number[];
-      pulse: number;
-      pulseSpeed: number;
+      size: number;
+      speedX: number;
+      speedY: number;
+      opacity: number;
     }
 
-    const nodes: CircuitNode[] = [];
-    const nodeCount = 20;
+    const particles: Particle[] = [];
+    const particleCount = 50;
 
-    for (let i = 0; i < nodeCount; i++) {
-      nodes.push({
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        connections: [],
-        pulse: Math.random() * Math.PI * 2,
-        pulseSpeed: Math.random() * 0.02 + 0.01,
+        size: Math.random() * 2 + 1,
+        speedX: (Math.random() - 0.5) * 0.3,
+        speedY: (Math.random() - 0.5) * 0.3,
+        opacity: Math.random() * 0.3 + 0.1,
       });
     }
 
-    // Connect nearby nodes
-    nodes.forEach((node, i) => {
-      nodes.forEach((other, j) => {
-        if (i !== j) {
-          const dist = Math.hypot(node.x - other.x, node.y - other.y);
-          if (dist < 200 && node.connections.length < 3) {
-            node.connections.push(j);
-          }
-        }
-      });
-    });
-
-    let frame = 0;
-
-    const drawHexGrid = () => {
-      ctx.strokeStyle = 'rgba(0, 255, 255, 0.03)';
+    // Subtle grid
+    const drawGrid = () => {
+      ctx.strokeStyle = 'rgba(0, 180, 216, 0.03)';
       ctx.lineWidth = 1;
 
-      for (let row = -1; row < canvas.height / hexHeight + 1; row++) {
-        for (let col = -1; col < canvas.width / (hexSize * 1.5) + 1; col++) {
-          const x = col * hexSize * 1.5;
-          const y = row * hexHeight + (col % 2 ? hexHeight / 2 : 0);
+      const gridSize = 80;
 
-          ctx.beginPath();
-          for (let i = 0; i < 6; i++) {
-            const angle = (Math.PI / 3) * i + Math.PI / 6;
-            const hx = x + hexSize * Math.cos(angle);
-            const hy = y + hexSize * Math.sin(angle);
-            if (i === 0) ctx.moveTo(hx, hy);
-            else ctx.lineTo(hx, hy);
-          }
-          ctx.closePath();
-          ctx.stroke();
-        }
-      }
-    };
-
-    const drawDataStreams = () => {
-      ctx.font = '14px monospace';
-
-      streams.forEach((stream) => {
-        stream.chars.forEach((char, idx) => {
-          const alpha = char.opacity * 0.6;
-          ctx.fillStyle =
-            idx === 0
-              ? stream.color
-              : stream.color.replace(')', `, ${alpha})`).replace('rgb', 'rgba');
-
-          if (idx === 0) {
-            ctx.shadowColor = stream.color;
-            ctx.shadowBlur = 10;
-          } else {
-            ctx.shadowBlur = 0;
-          }
-
-          ctx.fillText(char.char, stream.x, char.y);
-
-          char.y += char.speed;
-          if (char.y > canvas.height) {
-            char.y = -20;
-            char.char = String.fromCharCode(0x30A0 + Math.random() * 96);
-          }
-        });
-        ctx.shadowBlur = 0;
-      });
-    };
-
-    const drawCircuitNetwork = () => {
-      // Draw connections
-      ctx.lineWidth = 1;
-
-      nodes.forEach((node) => {
-        const pulseIntensity = (Math.sin(node.pulse) + 1) / 2;
-
-        node.connections.forEach((connIdx) => {
-          const other = nodes[connIdx];
-          const gradient = ctx.createLinearGradient(node.x, node.y, other.x, other.y);
-          gradient.addColorStop(0, `rgba(255, 0, 255, ${0.1 + pulseIntensity * 0.2})`);
-          gradient.addColorStop(1, `rgba(0, 255, 255, ${0.1 + pulseIntensity * 0.2})`);
-
-          ctx.strokeStyle = gradient;
-          ctx.beginPath();
-          ctx.moveTo(node.x, node.y);
-          ctx.lineTo(other.x, other.y);
-          ctx.stroke();
-        });
-
-        node.pulse += node.pulseSpeed;
-      });
-
-      // Draw nodes
-      nodes.forEach((node) => {
-        const pulseIntensity = (Math.sin(node.pulse) + 1) / 2;
-        const size = 3 + pulseIntensity * 2;
-
-        ctx.fillStyle = `rgba(255, 0, 255, ${0.5 + pulseIntensity * 0.5})`;
-        ctx.shadowColor = colors.magenta;
-        ctx.shadowBlur = 10 + pulseIntensity * 10;
+      // Vertical lines
+      for (let x = 0; x < canvas.width; x += gridSize) {
         ctx.beginPath();
-        ctx.arc(node.x, node.y, size, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      });
-    };
-
-    const drawGlitchEffect = () => {
-      // Randomly spawn glitch lines
-      if (Math.random() < 0.02) {
-        glitchLines.push({
-          y: Math.random() * canvas.height,
-          width: canvas.width,
-          height: Math.random() * 5 + 2,
-          duration: Math.random() * 10 + 5,
-          timer: 0,
-        });
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
       }
 
-      glitchLines = glitchLines.filter((line) => {
-        line.timer++;
-        if (line.timer > line.duration) return false;
+      // Horizontal lines
+      for (let y = 0; y < canvas.height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+    };
 
-        const glitchColors = [colors.cyan, colors.magenta, colors.red];
-        ctx.fillStyle = glitchColors[Math.floor(Math.random() * glitchColors.length)];
-        ctx.globalAlpha = 0.1;
-        ctx.fillRect(Math.random() * 50, line.y, line.width, line.height);
-        ctx.globalAlpha = 1;
+    // Draw and update particles
+    const drawParticles = () => {
+      particles.forEach((p) => {
+        ctx.fillStyle = `rgba(0, 180, 216, ${p.opacity})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
 
-        return true;
+        // Update position
+        p.x += p.speedX;
+        p.y += p.speedY;
+
+        // Wrap around
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
       });
     };
 
-    const drawScanLine = () => {
-      const scanY = (frame * 2) % canvas.height;
-
-      const gradient = ctx.createLinearGradient(0, scanY - 50, 0, scanY + 10);
-      gradient.addColorStop(0, 'rgba(0, 255, 255, 0)');
-      gradient.addColorStop(0.5, 'rgba(0, 255, 255, 0.05)');
-      gradient.addColorStop(1, 'rgba(0, 255, 255, 0)');
-
+    // Subtle glow in corner
+    const drawCornerGlow = () => {
+      const gradient = ctx.createRadialGradient(0, canvas.height, 0, 0, canvas.height, 400);
+      gradient.addColorStop(0, 'rgba(0, 180, 216, 0.05)');
+      gradient.addColorStop(1, 'rgba(0, 180, 216, 0)');
       ctx.fillStyle = gradient;
-      ctx.fillRect(0, scanY - 50, canvas.width, 60);
-
-      // Bright scan line
-      ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(0, scanY);
-      ctx.lineTo(canvas.width, scanY);
-      ctx.stroke();
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
     };
 
     const animate = () => {
-      ctx.fillStyle = 'rgba(5, 5, 15, 0.1)';
+      // Clear with dark background
+      ctx.fillStyle = 'rgba(10, 10, 14, 0.3)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      drawHexGrid();
-      drawCircuitNetwork();
-      drawDataStreams();
-      drawGlitchEffect();
-      drawScanLine();
+      drawGrid();
+      drawParticles();
+      drawCornerGlow();
 
-      frame++;
       requestAnimationFrame(animate);
     };
 
     // Initial clear
-    ctx.fillStyle = '#05050f';
+    ctx.fillStyle = '#0a0a0e';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     animate();
@@ -266,7 +121,7 @@ export function AnimatedBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.8 }}
+      style={{ opacity: 0.6 }}
     />
   );
 }
