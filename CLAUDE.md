@@ -27,18 +27,15 @@
 ## Quick Deploy
 
 ```bash
-# Build + Deploy + Verify
-npm run build && \
-rsync -avz --delete dist/ root@90.156.230.49:/opt/jarvis/jarvis-gateway/static/ && \
-ssh root@90.156.230.49 "systemctl restart jarvis-gateway && curl -I https://on-za-menya.online/"
+# Build + Deploy
+npm run build && scp -r dist/* root@90.156.230.49:/var/www/jarvis-frontend/
 ```
 
 ## VPS Access
 
 ```bash
 ssh root@90.156.230.49     # SSH
-ls -la /opt/jarvis/jarvis-gateway/static/  # Check deployed files
-systemctl restart jarvis-gateway  # Restart gateway after deploy
+ls -la /var/www/jarvis-frontend/  # Check deployed files
 journalctl -u jarvis-gateway -f   # Check gateway logs
 ```
 
@@ -50,7 +47,7 @@ User Browser
 https://on-za-menya.online (TLS :443)
      ↓
 jarvis-gateway :443 (Go + TLS)
-     ├── Static Files (/opt/jarvis/jarvis-gateway/static/)
+     ├── Static Files (/var/www/jarvis-frontend/)
      ├── HTTP :80 → HTTPS redirect
      └── API Proxy (/api/* → :8081)
           ↓
@@ -204,8 +201,7 @@ npm run preview          # Preview production build locally
 ```bash
 # Full deploy pipeline
 npm run build && \
-rsync -avz --delete dist/ root@90.156.230.49:/opt/jarvis/jarvis-gateway/static/ && \
-ssh root@90.156.230.49 "systemctl restart jarvis-gateway"
+scp -r dist/* root@90.156.230.49:/var/www/jarvis-frontend/
 ```
 
 ### 4. Verify
@@ -293,8 +289,7 @@ npm run preview          # Preview prod build locally
 npm run lint             # Lint TypeScript/ESLint
 
 # Deploy
-rsync -avz --delete dist/ root@90.156.230.49:/opt/jarvis/jarvis-gateway/static/
-ssh root@90.156.230.49 "systemctl restart jarvis-gateway"
+npm run build && scp -r dist/* root@90.156.230.49:/var/www/jarvis-frontend/
 
 # Check logs
 ssh root@90.156.230.49 "journalctl -u jarvis-gateway -f"
@@ -315,9 +310,7 @@ Git Push
    ↓
 Local Build (npm run build)
    ↓
-rsync dist/ → /opt/jarvis/jarvis-gateway/static/
-   ↓
-systemctl restart jarvis-gateway
+scp dist/* → /var/www/jarvis-frontend/
    ↓
 VERIFY: curl -I https://on-za-menya.online/
 ```
