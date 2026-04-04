@@ -39,24 +39,26 @@ export function LLMMetricsSection() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-display text-jarvis-cyan">LLM METRICS</h2>
-            <p className="text-sm font-body text-jarvis-text-muted mt-1">
-              {currentPeriod?.fullLabel} • Updated every 10s
-            </p>
           </div>
-          <div className="flex gap-2">
-            {PERIODS.map((p) => (
-              <button
-                key={p.value}
-                onClick={() => setPeriod(p.value)}
-                className={`px-4 py-2 text-sm font-mono rounded-lg transition-colors ${
-                  period === p.value
-                    ? 'bg-jarvis-cyan text-jarvis-bg-dark font-bold'
-                    : 'bg-jarvis-bg-card text-jarvis-text-muted hover:text-jarvis-cyan border border-jarvis-cyan/30'
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
+          <div className="flex items-center gap-4">
+            <span className="text-lg font-display text-jarvis-gold font-bold">
+              {currentPeriod?.fullLabel}
+            </span>
+            <div className="flex gap-2">
+              {PERIODS.map((p) => (
+                <button
+                  key={p.value}
+                  onClick={() => setPeriod(p.value)}
+                  className={`px-4 py-2 text-sm font-mono rounded-lg transition-colors ${
+                    period === p.value
+                      ? 'bg-jarvis-cyan text-jarvis-bg-dark font-bold'
+                      : 'bg-jarvis-bg-card text-jarvis-text-secondary hover:text-jarvis-cyan border-2 border-jarvis-cyan/40'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

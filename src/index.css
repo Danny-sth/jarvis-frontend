@@ -1,27 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  /* Colors - Iron Man / Cyberpunk Theme */
-  --color-jarvis-bg-dark: #0a0a0a;
-  --color-jarvis-bg-sidebar: #0f0f0f;
-  --color-jarvis-bg-card: #1a1a1e;
-  --color-jarvis-bg-surface: #1e1e22;
+  /* Colors - High Contrast Cyberpunk Theme */
+  --color-jarvis-bg-dark: #0d0d12;
+  --color-jarvis-bg-sidebar: #12121a;
+  --color-jarvis-bg-card: #1c1c28;
+  --color-jarvis-bg-surface: #242432;
 
-  /* Primary accents */
-  --color-jarvis-red: #ff3b3b;
-  --color-jarvis-orange: #ff6b35;
-  --color-jarvis-gold: #ffd700;
-  --color-jarvis-yellow: #ffaa00;
+  /* Primary accents - BRIGHT */
+  --color-jarvis-red: #ff4444;
+  --color-jarvis-orange: #ff7744;
+  --color-jarvis-gold: #ffdd00;
+  --color-jarvis-yellow: #ffcc00;
 
-  /* Secondary accents */
-  --color-jarvis-cyan: #00d4ff;
-  --color-jarvis-purple: #a855f7;
-  --color-jarvis-blue: #3b82f6;
+  /* Secondary accents - BRIGHT */
+  --color-jarvis-cyan: #00eeff;
+  --color-jarvis-purple: #bb77ff;
+  --color-jarvis-blue: #5599ff;
 
-  /* Text */
+  /* Text - HIGH CONTRAST */
   --color-jarvis-text-primary: #ffffff;
-  --color-jarvis-text-secondary: #c0c0c0;
-  --color-jarvis-text-muted: #888888;
+  --color-jarvis-text-secondary: #dddddd;
+  --color-jarvis-text-muted: #aaaaaa;
 
   /* Fonts */
   --font-family-display: "Orbitron", system-ui, sans-serif;

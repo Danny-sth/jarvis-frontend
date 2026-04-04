@@ -34,21 +34,21 @@ export function AnimatedBackground() {
     const colors = ['#00d4ff', '#a855f7', '#ff6b35'];
     const particles: Particle[] = [];
 
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 60; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        size: Math.random() * 3 + 1,
+        size: Math.random() * 4 + 2,
         speedX: (Math.random() - 0.5) * 0.5,
         speedY: (Math.random() - 0.5) * 0.5,
-        opacity: Math.random() * 0.5 + 0.2,
+        opacity: Math.random() * 0.6 + 0.4,
         color: colors[Math.floor(Math.random() * colors.length)],
       });
     }
 
     // Draw grid
     const drawGrid = () => {
-      ctx.strokeStyle = 'rgba(0, 212, 255, 0.06)';
+      ctx.strokeStyle = 'rgba(0, 238, 255, 0.12)';
       ctx.lineWidth = 1;
 
       for (let x = 0; x < canvas.width; x += gridSize) {
@@ -102,16 +102,18 @@ export function AnimatedBackground() {
     // Corner glow effects
     const drawGlows = () => {
       // Bottom left cyan glow
-      const gradient1 = ctx.createRadialGradient(0, canvas.height, 0, 0, canvas.height, 500);
-      gradient1.addColorStop(0, 'rgba(0, 212, 255, 0.08)');
-      gradient1.addColorStop(1, 'rgba(0, 212, 255, 0)');
+      const gradient1 = ctx.createRadialGradient(0, canvas.height, 0, 0, canvas.height, 600);
+      gradient1.addColorStop(0, 'rgba(0, 238, 255, 0.15)');
+      gradient1.addColorStop(0.5, 'rgba(0, 238, 255, 0.05)');
+      gradient1.addColorStop(1, 'rgba(0, 238, 255, 0)');
       ctx.fillStyle = gradient1;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Top right purple glow
-      const gradient2 = ctx.createRadialGradient(canvas.width, 0, 0, canvas.width, 0, 400);
-      gradient2.addColorStop(0, 'rgba(168, 85, 247, 0.06)');
-      gradient2.addColorStop(1, 'rgba(168, 85, 247, 0)');
+      const gradient2 = ctx.createRadialGradient(canvas.width, 0, 0, canvas.width, 0, 500);
+      gradient2.addColorStop(0, 'rgba(187, 119, 255, 0.12)');
+      gradient2.addColorStop(0.5, 'rgba(187, 119, 255, 0.04)');
+      gradient2.addColorStop(1, 'rgba(187, 119, 255, 0)');
       ctx.fillStyle = gradient2;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     };

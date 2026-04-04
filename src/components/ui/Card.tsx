@@ -21,10 +21,10 @@ const CardContent = ({ children, baseClasses }: CardContentProps) => (
     <div className="absolute inset-0 holographic opacity-30 pointer-events-none" />
 
     {/* Corner accents */}
-    <div className="absolute top-0 left-0 w-6 h-6 border-t border-l border-jarvis-cyan/30" />
-    <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-jarvis-cyan/30" />
-    <div className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-jarvis-cyan/30" />
-    <div className="absolute bottom-0 right-0 w-6 h-6 border-b border-r border-jarvis-cyan/30" />
+    <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-jarvis-cyan/60" />
+    <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-jarvis-purple/60" />
+    <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-jarvis-purple/60" />
+    <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-jarvis-cyan/60" />
 
     {/* Content */}
     <div className="relative z-10">
@@ -36,13 +36,14 @@ const CardContent = ({ children, baseClasses }: CardContentProps) => (
 export function Card({ children, className = '', hover = true, glow = false, animate = true }: CardProps) {
   const baseClasses = `
     bg-jarvis-bg-card
-    border border-jarvis-cyan/30
+    border-2 border-jarvis-cyan/50
     rounded-xl
     p-6
     relative
     overflow-hidden
+    shadow-lg shadow-jarvis-cyan/10
     ${glow ? 'border-glow' : ''}
-    ${hover ? 'transition-all duration-300 hover:border-jarvis-cyan/50 hover:shadow-lg hover:shadow-jarvis-cyan/20' : ''}
+    ${hover ? 'transition-all duration-300 hover:border-jarvis-cyan/80 hover:shadow-xl hover:shadow-jarvis-cyan/30' : ''}
     ${className}
   `;
 
