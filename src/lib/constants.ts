@@ -60,7 +60,6 @@ export const QUERY_KEYS = {
   SYSTEM_VERSION: 'system-version',
 
   // Monitoring
-  LIVE_METRICS: 'live-metrics',
   STATS_SUMMARY: 'stats-summary',
   MONITORING_EVENTS: 'monitoring-events',
   LLM_USAGE: 'llm-usage-7d',

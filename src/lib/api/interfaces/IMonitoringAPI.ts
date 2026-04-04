@@ -1,8 +1,7 @@
 // Monitoring API Interface
-import type { LiveMetrics, MonitoringEvent, LLMUsageSummary, StatsSummary } from '../types';
+import type { MonitoringEvent, LLMUsageSummary, StatsSummary } from '../types';
 
 export interface IMonitoringAPI {
-  getLiveMetrics(): Promise<LiveMetrics>;
   getEvents(params?: MonitoringEventsParams): Promise<MonitoringEventsResponse>;
   getLLMUsage(params?: LLMUsageParams): Promise<LLMUsageSummary>;
   getStatsSummary(period?: string): Promise<StatsSummary>;

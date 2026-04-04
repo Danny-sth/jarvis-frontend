@@ -1,13 +1,9 @@
 // Monitoring API Client implementation
 import { BaseAPIClient } from '../base/BaseAPIClient';
 import type { IMonitoringAPI, MonitoringEventsParams, MonitoringEventsResponse, LLMUsageParams } from '../interfaces/IMonitoringAPI';
-import type { LiveMetrics, LLMUsageSummary, StatsSummary } from '../types';
+import type { LLMUsageSummary, StatsSummary } from '../types';
 
 export class MonitoringAPIClient extends BaseAPIClient implements IMonitoringAPI {
-  async getLiveMetrics(): Promise<LiveMetrics> {
-    return this.get<LiveMetrics>('/monitoring/metrics/live');
-  }
-
   async getEvents(params?: MonitoringEventsParams): Promise<MonitoringEventsResponse> {
     const query = new URLSearchParams();
     if (params?.event_type) query.set('event_type', params.event_type);

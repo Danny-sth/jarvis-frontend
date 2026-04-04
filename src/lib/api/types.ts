@@ -64,6 +64,8 @@ export interface QueueStats {
   running: number;
   completed: number;
   failed: number;
+  scheduled: number;
+  cancelled: number;
 }
 
 export interface SubtaskPayload {
@@ -220,24 +222,6 @@ export interface DocCategory {
 }
 
 // Monitoring types
-export interface LiveMetrics {
-  llm: {
-    total_calls: number;
-    total_cost_usd: number;
-    calls_by_caller: Record<string, { count: number; cost: number }>;
-  };
-  api: {
-    total_requests: number;
-  };
-  workers: {
-    queue_depth: { pending: number; session: number; global: number };
-  };
-  tools: {
-    total_executions: number;
-  };
-  timestamp: string;
-}
-
 export interface MonitoringEvent {
   id: number;
   created_at: string;
