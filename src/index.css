@@ -1,20 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  /* Colors - Red/Yellow/Black AI Theme */
+  /* Colors - Iron Man / Cyberpunk Theme */
   --color-jarvis-bg-dark: #0a0a0a;
   --color-jarvis-bg-sidebar: #0f0f0f;
-  --color-jarvis-bg-card: #141414;
-  --color-jarvis-bg-surface: #1a1a1a;
+  --color-jarvis-bg-card: #1a1a1e;
+  --color-jarvis-bg-surface: #1e1e22;
 
-  --color-jarvis-red: #dc143c;
-  --color-jarvis-orange: #ff4500;
+  /* Primary accents */
+  --color-jarvis-red: #ff3b3b;
+  --color-jarvis-orange: #ff6b35;
   --color-jarvis-gold: #ffd700;
   --color-jarvis-yellow: #ffaa00;
 
-  --color-jarvis-text-primary: #f0f0f0;
-  --color-jarvis-text-secondary: #b0b0b0;
-  --color-jarvis-text-muted: #707070;
+  /* Secondary accents */
+  --color-jarvis-cyan: #00d4ff;
+  --color-jarvis-purple: #a855f7;
+  --color-jarvis-blue: #3b82f6;
+
+  /* Text */
+  --color-jarvis-text-primary: #ffffff;
+  --color-jarvis-text-secondary: #c0c0c0;
+  --color-jarvis-text-muted: #888888;
 
   /* Fonts */
   --font-family-display: "Orbitron", system-ui, sans-serif;

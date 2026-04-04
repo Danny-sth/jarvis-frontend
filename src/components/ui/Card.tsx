@@ -36,13 +36,13 @@ const CardContent = ({ children, baseClasses }: CardContentProps) => (
 export function Card({ children, className = '', hover = true, glow = false, animate = true }: CardProps) {
   const baseClasses = `
     bg-jarvis-bg-card
-    border border-jarvis-cyan/20
+    border border-jarvis-cyan/30
     rounded-xl
-    p-8
+    p-6
     relative
     overflow-hidden
     ${glow ? 'border-glow' : ''}
-    ${hover ? 'transition-all duration-300 hover:border-jarvis-cyan/40 hover:shadow-lg hover:shadow-jarvis-cyan/10' : ''}
+    ${hover ? 'transition-all duration-300 hover:border-jarvis-cyan/50 hover:shadow-lg hover:shadow-jarvis-cyan/20' : ''}
     ${className}
   `;
 

@@ -6,11 +6,11 @@ import { Card } from '../ui/Card';
 
 type Period = 'last_hour' | 'last_24h' | 'last_7d' | 'last_30d';
 
-const PERIODS: { value: Period; label: string }[] = [
-  { value: 'last_hour', label: '1H' },
-  { value: 'last_24h', label: '24H' },
-  { value: 'last_7d', label: '7D' },
-  { value: 'last_30d', label: '30D' },
+const PERIODS: { value: Period; label: string; fullLabel: string }[] = [
+  { value: 'last_hour', label: '1H', fullLabel: 'Last hour' },
+  { value: 'last_24h', label: '24H', fullLabel: 'Last 24 hours' },
+  { value: 'last_7d', label: '7D', fullLabel: 'Last 7 days' },
+  { value: 'last_30d', label: '30D', fullLabel: 'Last 30 days' },
 ];
 
 export function LLMMetricsSection() {
@@ -31,11 +31,18 @@ export function LLMMetricsSection() {
       )
     : 0;
 
+  const currentPeriod = PERIODS.find((p) => p.value === period);
+
   return (
     <div className="space-y-6">
       <div>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-display text-jarvis-cyan">LLM METRICS</h2>
+          <div>
+            <h2 className="text-2xl font-display text-jarvis-cyan">LLM METRICS</h2>
+            <p className="text-sm font-body text-jarvis-text-muted mt-1">
+              {currentPeriod?.fullLabel} • Updated every 10s
+            </p>
+          </div>
           <div className="flex gap-2">
             {PERIODS.map((p) => (
               <button
@@ -44,7 +51,7 @@ export function LLMMetricsSection() {
                 className={`px-4 py-2 text-sm font-mono rounded-lg transition-colors ${
                   period === p.value
                     ? 'bg-jarvis-cyan text-jarvis-bg-dark font-bold'
-                    : 'bg-jarvis-bg-card text-jarvis-text-muted hover:text-jarvis-cyan border border-jarvis-cyan/20'
+                    : 'bg-jarvis-bg-card text-jarvis-text-muted hover:text-jarvis-cyan border border-jarvis-cyan/30'
                 }`}
               >
                 {p.label}
